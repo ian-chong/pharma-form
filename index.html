@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delphi Questionnaire — Pharmaceutical Criteria Prioritisation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --usm-purple:       #2F015D;
+  --usm-purple-light: #EDE8F5;
+  --usm-purple-mid:   #C4B3E0;
+  --usm-orange:       #FF7300;
+  --usm-orange-light: #FFF0E6;
+  --usm-orange-mid:   #FFD4B0;
+  --bg:    #FFFFFF;
+  --bg2:   #FAF8F5;
+  --bg3:   #F3EFE9;
+  --text:  #1C1C1C;
+  --text2: #5C5A57;
+  --text3: #9E9B96;
+  --border:  rgba(47,1,93,0.1);
+  --border2: rgba(47,1,93,0.22);
+  --blue-bg:    #EDE8F5;
+  --blue-text:  #2F015D;
+  --amber-bg:   #FFF0E6;
+  --amber-text: #7A3500;
+  --green-bg:   #EAF3DE;
+  --green-text: #27500A;
+  --purple-bg:  #EDE8F5;
+  --purple-text:#2F015D;
+  --red-bg:     #FCEBEB;
+  --red-text:   #A32D2D;
+  --radius:    10px;
+  --radius-lg: 14px;
+  --font-scale: 1;
+}
+body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg2); color:var(--text); font-size:15px; line-height:1.65; min-height:100vh; -webkit-font-smoothing:antialiased; }
+.page { max-width:900px; margin:0 auto; padding:2rem 1.25rem 4rem; }
+
+
+/* ── Save progress ── */
+.save-float {
+  position:fixed; bottom:2rem; left:50%; transform:translateX(-50%);
+  z-index:9998; display:flex; flex-direction:column; align-items:center; gap:8px;
+  pointer-events:none;
+}
+.save-float-btn {
+  pointer-events:all;
+  padding:14px 36px; font-size:16px; font-weight:700;
+  background:var(--usm-purple); color:#fff;
+  border:none; border-radius:40px; cursor:pointer;
+  box-shadow:0 6px 24px rgba(47,1,93,.35);
+  transition:transform .15s, box-shadow .15s;
+  font-family:inherit; letter-spacing:.01em;
+}
+.save-float-btn:hover { transform:scale(1.04); box-shadow:0 8px 30px rgba(47,1,93,.45); }
+.save-float-btn:active { transform:scale(.98); }
+.save-float-msg {
+  pointer-events:none;
+  font-size:13px; color:#fff; background:rgba(47,1,93,.82);
+  padding:6px 16px; border-radius:20px;
+  opacity:0; transition:opacity .4s;
+}
+.save-float-msg.show { opacity:1; }
+.restore-banner {
+  background:var(--usm-purple); color:#fff;
+  padding:14px 20px; border-radius:var(--radius);
+  margin-bottom:1.25rem; font-size:14px; line-height:1.6;
+  display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+}
+.restore-banner strong { font-weight:700; }
+.restore-banner-btns { display:flex; gap:8px; flex-shrink:0; }
+.restore-banner-btns button {
+  padding:7px 16px; border-radius:var(--radius); font-size:13px;
+  font-weight:600; cursor:pointer; font-family:inherit; border:none;
+}
+.restore-btn-yes { background:#fff; color:var(--usm-purple); }
+.restore-btn-no  { background:rgba(255,255,255,.2); color:#fff; }
+
+/* ── Accessibility font widget ── */
+.a11y-widget {
+  position:fixed; bottom:1.5rem; right:1.5rem; z-index:9999;
+  display:flex; align-items:center; gap:6px;
+  background:var(--usm-purple); border-radius:40px;
+  padding:6px 10px; box-shadow:0 4px 16px rgba(47,1,93,.3);
+}
+.a11y-btn {
+  background:none; border:none; cursor:pointer; color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  width:32px; height:32px; border-radius:50%;
+  transition:background .15s; padding:0; line-height:1;
+}
+.a11y-btn:hover { background:rgba(255,255,255,.15); }
+.a11y-btn:active { background:rgba(255,255,255,.25); }
+.a11y-divider { width:1px; height:20px; background:rgba(255,255,255,.3); }
+.a11y-label { font-size:11px; color:rgba(255,255,255,.7); font-weight:600; letter-spacing:.04em; padding:0 2px; user-select:none; }
+
+/* ── Header ── */
+.form-header { margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:nowrap; gap:16px; }
+.form-header h1 { font-size:16px; font-weight:600; color:var(--usm-purple); margin-bottom:3px; letter-spacing:-0.01em; }
+.form-header p { font-size:14px; color:var(--text2); }
+.form-header > div { flex:1; min-width:0; }
+.version-badge { font-size:12px; color:var(--usm-purple); background:var(--usm-purple-light); padding:3px 12px; border-radius:20px; white-space:nowrap; font-weight:500; }
+/* ── Stepper ── */
+.progress-wrap { margin-bottom:2rem; overflow-x:auto; }
+.progress-steps { display:flex; align-items:center; min-width:600px; }
+.step-node { display:flex; align-items:center; flex:1; }
+.step-node:last-child { flex:0; }
+.step-dot { width:68px; height:68px; border-radius:50%; border:1.5px solid var(--border2); background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; flex-shrink:0; transition:all .3s; cursor:default; }
+.step-dot-num { font-size:17px; font-weight:600; color:var(--text3); line-height:1; }
+.step-dot-lbl { font-size:8.5px; font-weight:500; color:var(--text3); text-align:center; line-height:1.2; max-width:58px; padding:0 3px; }
+.step-dot.active { background:var(--usm-purple); border-color:var(--usm-purple); }
+.step-dot.active .step-dot-num { color:#fff; }
+.step-dot.active .step-dot-lbl { color:rgba(255,255,255,0.75); }
+.step-dot.done { background:var(--usm-purple-light); border-color:var(--usm-purple-mid); }
+.step-dot.done .step-dot-num { color:var(--usm-purple); font-size:18px; }
+.step-dot.done .step-dot-lbl { color:var(--usm-purple); }
+.step-line { flex:1; height:1.5px; background:var(--border); transition:background .3s; margin:0 3px; }
+.step-line.done { background:var(--usm-purple-mid); }
+/* ── Cards ── */
+.card { background:var(--bg); border:0.5px solid var(--border); border-radius:var(--radius-lg); padding:1.75rem; margin-bottom:1.25rem; box-shadow:0 1px 4px rgba(47,1,93,0.06); }
+.q-label { font-size:0.733em; font-weight:600; color:var(--usm-orange); text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+.q-title { font-size:1.2em; font-weight:600; color:var(--usm-purple); margin-bottom:.5rem; line-height:1.4; letter-spacing:-0.01em; }
+.hint { font-size:0.867em; color:var(--text2); margin-bottom:1rem; line-height:1.6; }
+.section-lbl { font-size:11px; font-weight:600; color:var(--usm-orange); text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+.divider { border:none; border-top:0.5px solid var(--border); margin:1.25rem 0; }
+/* ── Inputs ── */
+input[type=text],select,textarea { font-family:'Inter',sans-serif; font-size:14px; color:var(--text); background:var(--bg); border:1px solid var(--border2); border-radius:var(--radius); outline:none; transition:border-color .15s,box-shadow .15s; }
+input[type=text] { width:100%; padding:10px 13px; }
+input[type=text]:focus { border-color:var(--usm-purple); box-shadow:0 0 0 3px rgba(47,1,93,0.1); }
+textarea { width:100%; padding:10px 13px; resize:vertical; line-height:1.6; }
+textarea:focus { border-color:var(--usm-purple); box-shadow:0 0 0 3px rgba(47,1,93,0.1); }
+select:focus { border-color:var(--usm-purple); box-shadow:0 0 0 3px rgba(47,1,93,0.1); }
+.field-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+label.field-label { display:block; font-size:12px; font-weight:600; color:var(--text2); margin-bottom:5px; }
+/* ── Buttons ── */
+.footer { display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem; flex-wrap:wrap; gap:10px; }
+.sel-count { font-size:13px; color:var(--text2); }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:10px 22px; font-size:14px; font-family:'Inter',sans-serif; font-weight:500; border:1.5px solid var(--border2); border-radius:var(--radius); background:transparent; color:var(--text); cursor:pointer; transition:all .15s; }
+.btn:hover { background:var(--bg3); border-color:var(--usm-purple); color:var(--usm-purple); }
+.btn:active { transform:scale(0.98); }
+.btn-primary { background:var(--usm-purple); color:#fff; border-color:var(--usm-purple); }
+.btn-primary:hover { background:#3d0178; border-color:#3d0178; color:#fff; }
+.btn-primary:disabled { opacity:.35; cursor:not-allowed; transform:none; }
+/* ── Badges ── */
+.cat-badge { font-size:11px; font-weight:600; padding:2px 9px; border-radius:20px; display:inline-block; letter-spacing:.02em; }
+.cat-Product      { background:var(--usm-purple-light); color:var(--usm-purple); }
+.cat-Manufacturer { background:#EAF3DE; color:#27500A; }
+.cat-Service      { background:var(--usm-orange-light); color:#7A3500; }
+.cat-Economic     { background:#FFF8E1; color:#6D4C00; }
+/* ── Tables ── */
+table { width:100%; border-collapse:collapse; }
+thead th { font-size:11px; font-weight:600; color:var(--usm-purple); text-align:left; padding:8px 12px; border-bottom:1.5px solid var(--usm-purple-mid); background:var(--usm-purple-light); letter-spacing:.04em; text-transform:uppercase; }
+tbody tr { border-bottom:0.5px solid var(--border); transition:background .1s; }
+tbody tr:last-child { border-bottom:none; }
+tbody tr:hover { background:var(--bg2); }
+tbody tr.selected { background:var(--usm-purple-light); }
+td { padding:12px; vertical-align:top; }
+td:first-child { text-align:center; vertical-align:middle; }
+input[type=checkbox] { width:16px; height:16px; accent-color:var(--usm-purple); cursor:pointer; }
+.crit-name { font-weight:600; font-size:0.867em; color:var(--text); }
+.crit-desc { font-size:0.8em; color:var(--text2); margin-top:3px; line-height:1.6; }
+.cat-header td { background:var(--bg3); font-size:11px; font-weight:600; color:var(--usm-purple); text-transform:uppercase; letter-spacing:.05em; padding:5px 12px; pointer-events:none; cursor:default; }
+.perf-levels-list { list-style:none; padding:0; margin:0; }
+.perf-levels-list li { font-size:12px; color:var(--text2); padding:5px 0; border-top:0.5px solid var(--border); line-height:1.55; }
+.perf-levels-list li:first-child { border-top:none; padding-top:0; }
+.perf-level-num { font-weight:600; color:var(--usm-purple); margin-right:3px; }
+/* ── Review items ── */
+.review-item { border:0.5px solid var(--border); border-radius:var(--radius); margin-bottom:14px; overflow:hidden; }
+.review-item-header { background:var(--bg2); padding:12px 16px; border-bottom:0.5px solid var(--border); }
+.review-item-counter { font-size:11px; font-weight:600; color:var(--usm-orange); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+.review-item-name { font-size:14px; font-weight:600; color:var(--usm-purple); margin-bottom:8px; display:flex; align-items:center; flex-wrap:wrap; gap:6px; }
+.review-sub-lbl { font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; margin-top:10px; }
+.review-text-box { font-size:13px; color:var(--text2); line-height:1.65; background:var(--bg); border:0.5px solid var(--border); border-radius:var(--radius); padding:10px 13px; }
+.review-item-body { padding:12px 16px; }
+.review-proposed-lbl { font-size:12px; font-weight:600; color:var(--text2); margin-bottom:5px; }
+.review-optional { font-weight:400; color:var(--text3); }
+/* ── Criterion cards ── */
+.crit-card { display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border:1px solid var(--border); border-radius:var(--radius); margin-bottom:8px; cursor:pointer; transition:background .1s,border-color .15s; background:var(--bg); }
+.crit-card:hover { background:var(--bg2); border-color:var(--usm-purple-mid); }
+.crit-card.selected { background:var(--usm-purple-light); border-color:var(--usm-purple-mid); }
+.crit-card-chk { margin-top:2px; flex-shrink:0; }
+.crit-card-body { flex:1; }
+.crit-card-name { font-size:0.933em; font-weight:600; color:var(--usm-purple); margin-bottom:4px; }
+.crit-card-desc { font-size:0.867em; color:var(--text2); line-height:1.65; }
+.crit-section-title { font-size:15px; font-weight:600; color:var(--usm-purple); margin-bottom:4px; margin-top:1.5rem; }
+.crit-section-title:first-of-type { margin-top:0; }
+.crit-section-hint { font-size:13px; color:var(--text2); margin-bottom:12px; line-height:1.55; }
+/* ── Ranking ── */
+.rank-list { list-style:none; }
+.rank-item { display:flex; align-items:flex-start; gap:10px; padding:12px 14px; border:1px solid var(--border); border-radius:var(--radius); margin-bottom:8px; background:var(--bg); cursor:grab; user-select:none; transition:background .1s,border-color .1s; }
+.rank-item:hover { border-color:var(--usm-purple-mid); background:var(--bg2); }
+.rank-item.dragging { opacity:.4; }
+.rank-item.drag-over { border-color:var(--usm-purple); background:var(--usm-purple-light); }
+.drag-handle { display:flex; flex-direction:column; gap:3px; padding:4px 2px; flex-shrink:0; margin-top:3px; opacity:.3; }
+.drag-handle span { display:block; width:14px; height:1.5px; background:var(--usm-purple); border-radius:1px; }
+.rank-num { min-width:28px; height:28px; border-radius:50%; background:var(--usm-purple-light); border:1px solid var(--usm-purple-mid); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--usm-purple); flex-shrink:0; margin-top:1px; }
+/* ── Intro ── */
+.intro-rounds { display:flex; gap:8px; margin-bottom:1.5rem; }
+.round-pip { display:flex; align-items:flex-start; gap:10px; background:var(--usm-purple-light); border:0.5px solid var(--usm-purple-mid); border-radius:var(--radius); padding:12px 14px; flex:1; }
+.round-num-circle { width:28px; height:28px; border-radius:50%; background:var(--usm-purple); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; flex-shrink:0; margin-top:1px; }
+.round-text { font-size:12px; color:var(--usm-purple); line-height:1.5; }
+.round-text strong { font-weight:600; color:var(--usm-purple); display:block; margin-bottom:2px; }
+.cases-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1.5rem; }
+.case-pip { background:var(--usm-orange-light); border:0.5px solid var(--usm-orange-mid); border-radius:var(--radius); padding:12px 14px; }
+.case-pip-num { font-size:11px; font-weight:600; color:var(--usm-orange); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+.case-pip-name { font-size:14px; font-weight:600; color:#7A3500; }
+.about-text { font-size:0.867em; color:var(--text2); line-height:1.8; }
+.about-text p { margin-bottom:10px; }
+.about-text p:last-child { margin-bottom:0; }
+.info-box { background:var(--usm-purple-light); border-radius:var(--radius); padding:14px 16px; margin-top:1rem; border:0.5px solid var(--usm-purple-mid); }
+.info-box p { font-size:13px; color:var(--usm-purple); line-height:1.65; margin:0; }
+/* ── Decision problem ── */
+.dp-field { background:var(--bg2); border-radius:var(--radius); padding:14px 16px; margin-bottom:10px; border:0.5px solid var(--border); }
+.dp-field-lbl { font-size:11px; font-weight:600; color:var(--usm-orange); text-transform:uppercase; letter-spacing:.06em; margin-bottom:5px; }
+.dp-field-val { font-size:13px; color:var(--text); line-height:1.7; }
+/* ── Case intro ── */
+.case-intro-eyebrow { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.07em; margin-bottom:6px; }
+.case-intro-title { font-size:1.733em; font-weight:600; color:var(--usm-purple); margin-bottom:4px; letter-spacing:-0.01em; }
+.case-intro-sub { font-size:14px; color:var(--text2); margin-bottom:1.5rem; padding-bottom:1.25rem; border-bottom:0.5px solid var(--border); }
+.case-detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:1.25rem; }
+.case-detail { background:var(--bg2); border-radius:var(--radius); padding:12px 14px; border:0.5px solid var(--border); }
+.case-detail.full { grid-column:1/-1; }
+.case-detail-lbl { font-size:11px; font-weight:600; color:var(--usm-orange); text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px; }
+.case-detail-val { font-size:13px; color:var(--text); line-height:1.65; }
+.case-detail-val ul { padding-left:16px; }
+.case-detail-val ul li { margin-bottom:3px; }
+.case-notice { display:flex; gap:10px; background:var(--usm-purple-light); border:0.5px solid var(--usm-purple-mid); border-radius:var(--radius); padding:12px 14px; align-items:flex-start; }
+.case-notice-i { width:18px; height:18px; border-radius:50%; background:var(--usm-purple); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; flex-shrink:0; margin-top:1px; }
+.case-notice p { font-size:13px; color:var(--usm-purple); line-height:1.6; margin:0; }
+/* ── Success ── */
+.success-box { background:var(--usm-purple-light); border:0.5px solid var(--usm-purple-mid); border-radius:var(--radius-lg); padding:2rem; text-align:center; }
+.success-box h2 { font-size:20px; font-weight:600; color:var(--usm-purple); margin-bottom:8px; }
+.success-box p { font-size:14px; color:var(--usm-purple); opacity:.85; }
+.hidden { display:none; }
+@media(max-width:640px) {
+  .field-row { grid-template-columns:1fr; }
+  .intro-rounds { flex-direction:column; }
+  .cases-grid { grid-template-columns:1fr; }
+  .case-detail-grid { grid-template-columns:1fr; }
+  thead th:nth-child(3), td:nth-child(3) { display:none; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="form-header">
+    <div>
+      <h1>Tender Decision-Making of Off-Patent Pharmaceutical for healthcare facilities</h1>
+      <p style="font-size:14px;font-weight:600;color:var(--usm-purple);letter-spacing:-0.01em;margin-bottom:3px">Round 1 Modified Delphi (26th – 30th April 2026)</p>
+      <p id="header-welcome" style="font-size:13px;color:var(--text2);line-height:1.7;margin-top:6px;max-width:620px">Thank you for participating in this modified Delphi study. Your feedback is valuable to develop a context-relevant value-based procurement tool.<br>Your responses will remain anonymous. The survey will take approximately 20–30 minutes.</p>
+    </div>
+    
+  </div>
+
+  <!-- ── STEPPER ── -->
+  <div class="progress-wrap">
+    <div class="progress-steps" id="progressSteps">
+      <!-- dots injected by JS -->
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 0 — Participant details
+  ══════════════════════════════════════════ -->
+  <div id="step-details" class="card hidden">
+    <div id="restoreBanner" class="restore-banner hidden">
+      <div><strong>You have a saved session</strong> from <span id="restoreTime"></span>.<br>Would you like to continue where you left off?</div>
+      <div class="restore-banner-btns">
+        <button class="restore-btn-yes" onclick="restoreProgress()">Restore my progress</button>
+        <button class="restore-btn-no"  onclick="dismissRestore()">Start fresh</button>
+      </div>
+    </div>
+    <div class="q-title" style="font-size:15px;margin-bottom:6px">Participant information</div>
+    <p class="hint">Please fill in your details.</p>
+    <div class="field-row">
+      <div><label class="field-label">Full name *</label><input type="text" id="partName" placeholder="e.g. Dr. Ahmad bin Yusof" /></div>
+      <div><label class="field-label">Designation / role *</label><input type="text" id="partRole" placeholder="e.g. Clinical Pharmacist" /></div>
+    </div>
+    <div class="field-row">
+      <div>
+      <label class="field-label">Institution *</label>
+      <select id="partDept" onchange="toggleOtherInst()" style="width:100%;padding:9px 12px;font-size:14px;font-family:inherit;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none">
+        <option value="">-- Select institution --</option>
+        <option value="HPUSM">HPUSM</option>
+        <option value="PKTAAB">PKTAAB</option>
+        <option value="Pusat Sejahtera">Pusat Sejahtera</option>
+        <option value="Bursary USM">Bursary USM</option>
+        <option value="Others">Others</option>
+      </select>
+      <div id="otherInstWrap" class="hidden" style="margin-top:8px">
+        <input type="text" id="partDeptOther" placeholder="Please specify your institution"
+          style="width:100%;padding:9px 12px;font-size:14px;font-family:inherit;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none" />
+      </div>
+    </div>
+      <div><label class="field-label">Years of pharmaceutical procurement experience *</label><input type="text" id="partExp" placeholder="e.g. 12 years" /></div>
+    </div>
+    <div style="margin-top:1rem">
+      <label class="field-label">Experience in technical or financial evaluation of tender *</label>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <label style="display:flex;align-items:center;gap:8px;padding:9px 20px;border:1.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:500">
+          <input type="radio" name="partTenderExp" value="yes" checked style="accent-color:#1a1a1a;width:15px;height:15px" /> Yes
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:9px 20px;border:1.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:500">
+          <input type="radio" name="partTenderExp" value="no" style="accent-color:#1a1a1a;width:15px;height:15px" /> No
+        </label>
+      </div>
+    </div>
+    <div id="detailsValidationMsg" class="hidden" style="font-size:13px;color:#a32d2d;margin-bottom:8px;margin-top:12px">Please fill in all fields before proceeding.</div>
+    <div class="footer"><span></span><button class="btn btn-primary" onclick="markFormStarted();nav('intro')">Start &#8594;</button></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 1 — Delphi introduction
+  ══════════════════════════════════════════ -->
+  <div id="step-intro" class="card hidden">
+    <div class="q-label">Introduction</div>
+    <div class="q-title">Modified Delphi questionnaire</div>
+
+    <div class="about-text">
+      <p>A modified Delphi panel is a structured, iterative, and anonymous consensus-building technique that begins with pre-selected evidence-based items.</p>
+      <p style="margin-top:0.75rem">This is Round 1 of 3 consecutive rounds. In this Round 1, you will be expected to assess the decision problem, criteria, definition and performance levels related to three procurement cases. The same set of questions will be repeated across three procurement cases. Please evaluate each case independently based on your professional experience and knowledge.</p>
+      <div style="margin-top:1rem">
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px">Definition of terms</div>
+        <ul style="font-size:13px;color:var(--text2);line-height:1.8;padding-left:1.2rem;margin:0">
+          <li><strong style="color:var(--text)">Off-patent pharmaceuticals (OPP):</strong> Medications with no active patents</li>
+          <li><strong style="color:var(--text)">Multi-criteria decision analysis (MCDA):</strong> A structured, systematic framework used to evaluate multiple, often conflicting options against a set of predefined criteria.</li>
+          <li><strong style="color:var(--text)">Mandatory criteria:</strong> Binary specification / criteria to fulfil and perform positively to meet the minimum standard in order to be considered for evaluation.</li>
+          <li><strong style="color:var(--text)">MCDA criteria:</strong> Performance-based specification / criteria used to score and rank the eligible alternatives through weighted trade-offs.</li>
+        </ul>
+      </div>
+
+
+      <div style="margin-top:1.25rem">
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">What is MCDA?</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:10px">Making a complex decision involves more than just looking at a single factor like the lowest price. Multi-Criteria Decision Analysis (MCDA) is a structured framework used to compare different options by evaluating several factors simultaneously. Consider it as a professional "balancing act." Instead of choosing a medicine based solely on one criteria (i.e. price or efficacy), MCDA allows for the consideration of relevant criteria at the appropriate weightage. It transforms subjective opinions into a clear, transparent, and data-driven choice.</p>
+
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;margin-top:14px">Why Use MCDA for OPP Procurement?</div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:14px">In a healthcare environment, the "best" drug is rarely defined by one characteristic. There are various applications of MCDA in pharmaceutical decision making such as drug listing that focuses on therapeutic need — where cost effectiveness and clinical superiority is highlighted. Procurement must balance competing priorities to ensure the highest standard of care. MCDA's role in drug procurement is critical and unique because the supply resilience and value is evaluated to justify 'Value for Money' for drug procurement. By using this method, the procurement process becomes repeatable, defensible, and focused on delivering the best overall value to both the patient and the institution.</p>
+
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px">Table 1: Example of a weighted-sum framework</div>
+        <table style="width:50%;border-collapse:collapse;font-size:12px;color:var(--text);margin-bottom:4px">
+          <thead>
+            <tr style="background:var(--bg3)">
+              <th style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle;font-weight:600">Criterion</th>
+              <th style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle;font-weight:600">Criterion weight</th>
+              <th style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle;font-weight:600">Level</th>
+              <th style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle;font-weight:600">Criterion score</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle" rowspan="4">Criteria A</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle" rowspan="4">0.45</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">poor</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">0</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">fair</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">1</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">good</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">2</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">excellent</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">3</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle" rowspan="3">Criteria B</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle" rowspan="3">0.35</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">≤ 1 years</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">1</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">2 years</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">2</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">&gt; 2 years</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">3</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle" rowspan="3">Criteria C</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle" rowspan="3">0.2</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">poor</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">0</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">fair</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">1</td>
+            </tr>
+            <tr>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">excellent</td>
+              <td style="border:1px solid #333;padding:5px 8px;text-align:center;vertical-align:middle">2</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button class="btn" onclick="nav('details')">&#8592; Back</button>
+      <button class="btn btn-primary" onclick="nav('decision')">Next &#8594;</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 2 — Decision problem
+  ══════════════════════════════════════════ -->
+  <div id="step-decision" class="card hidden">
+    <div class="q-title">Does this accurately reflect the scope of the decision problem?</div>
+    <div class="q-title" style="margin-bottom:.75rem">If not, suggest how it can be improved.</div>
+
+    <div class="dp-field"><div class="dp-field-lbl">Decision problem</div><div class="dp-field-val">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</div></div>
+
+    <div style="margin-top:1.25rem">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">Please state below if you agree or suggest amendments to this <span style="color:#a32d2d">*</span></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:500;transition:background .1s" id="dp-agree-lbl">
+          <input type="radio" name="dpAnswer" value="agree" checked onchange="toggleDPField()" style="accent-color:#1a1a1a;width:15px;height:15px" /> Agree
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;padding:10px 16px;border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:500;transition:background .1s" id="dp-amend-lbl">
+          <input type="radio" name="dpAnswer" value="amend" onchange="toggleDPField()" style="accent-color:#1a1a1a;width:15px;height:15px" /> Suggest amendments
+        </label>
+      </div>
+      <div id="dpValidationMsg" class="hidden" style="margin-top:8px;font-size:13px;color:#a32d2d">Please select an option to continue.</div>
+      <div id="dpTextField" class="hidden" style="margin-top:12px">
+        <label class="field-label">Your suggested amendments</label>
+        <textarea id="dpAmendment" rows="4" placeholder="Describe how the decision problem statement should be improved..."></textarea>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button class="btn" onclick="nav('intro')">&#8592; Back</button>
+      <button class="btn btn-primary" onclick="navDP()">Next &#8594;</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       CASE INTRO screens (one per case)
+  ══════════════════════════════════════════ -->
+  <div id="step-case-intro-0" class="card hidden">
+    <div class="case-intro-eyebrow" style="color:var(--usm-orange);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Procurement Case I of III</div>
+    <div class="case-intro-title">💊 Gliclazide</div>
+    <div style="font-size:0.933em;color:var(--text2);line-height:1.8;background:var(--bg2);border-radius:var(--radius);padding:14px 16px;margin-bottom:1.25rem">Gliclazide is a second-generation sulfonylurea used primarily in the management of Type 2 Diabetes Mellitus (T2DM). It is distinguished within its class by its partial selectivity for pancreatic sulfonylurea receptors and its perceived cardiovascular safety profile.<br><br>This drug belongs to the top 2 utilised therapeutic subgroup and was shown to have high utilization and expenditure in 2019–2022. A total of 36 products is registered across three strengths: 30mg (10 products), 60mg (10 products), 80mg (16 products). They are available in multiple oral formulations, including both immediate-release and modified-release dosage forms.</div>
+    <div class="footer">
+      <button class="btn" onclick="nav('decision')">&#8592; Back</button>
+      <button class="btn btn-primary" onclick="startCase(0)">Proceed to case questions &#8594;</button>
+    </div>
+  </div>
+
+  <div id="step-case-intro-1" class="card hidden">
+    <div class="case-intro-eyebrow" style="color:var(--usm-orange);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Procurement Case II of III</div>
+    <div class="case-intro-title">💊 Ceftriaxone</div>
+    <div style="font-size:0.933em;color:var(--text2);line-height:1.8;background:var(--bg2);border-radius:var(--radius);padding:14px 16px;margin-bottom:1.25rem">Ceftriaxone is utilized as a broad-spectrum, once-daily parenteral agent for the treatment of community-acquired pneumonia, complicated urinary tract infections, and as a common choice for surgical prophylaxis.<br><br>It was shown to have the highest utilisation in both all wards and ICU categories from 2008 till 2017. A total of 28 products is registered across three strengths: 1g (15 products), 500mg (9 products), and 250mg (4 products).</div>
+    <div class="footer">
+      <button class="btn" onclick="nav('case-q4-0')">&#8592; Back</button>
+      <button class="btn btn-primary" onclick="startCase(1)">Proceed to case questions &#8594;</button>
+    </div>
+  </div>
+
+  <div id="step-case-intro-2" class="card hidden">
+    <div class="case-intro-eyebrow" style="color:var(--usm-orange);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Procurement Case III of III</div>
+    <div class="case-intro-title">💊 Levothyroxine</div>
+    <div style="font-size:0.933em;color:var(--text2);line-height:1.8;background:var(--bg2);border-radius:var(--radius);padding:14px 16px;margin-bottom:1.25rem">Levothyroxine sodium is a synthetic form of thyroxine T4 used as first-line replacement therapy for hypothyroidism to restore normal metabolic function. Due to its Narrow Therapeutic Index (NTI), brand interchangeability is limited.<br><br>The utilisation of levothyroxine in the public sectors increased by 37% in 2022 compared to 2017. A total of 8 products is available across three strengths: 25mcg (2 products), 50mcg (3 products), 100mcg (3 products).</div>
+    <div class="footer">
+      <button class="btn" onclick="nav('case-q4-1')">&#8592; Back</button>
+      <button class="btn btn-primary" onclick="startCase(2)">Proceed to case questions &#8594;</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       CASE QUESTION SCREENS (rendered by JS)
+       IDs: step-case-q1-{caseIdx} through step-case-q5-{caseIdx}
+  ══════════════════════════════════════════ -->
+  <div id="step-case-q1-0" class="card hidden"></div>
+  <div id="step-case-q2-0" class="card hidden"></div>
+  <div id="step-case-q3-0" class="card hidden"></div>
+  <div id="step-case-q4-0" class="card hidden"></div>
+
+  <div id="step-case-q1-1" class="card hidden"></div>
+  <div id="step-case-q2-1" class="card hidden"></div>
+  <div id="step-case-q3-1" class="card hidden"></div>
+  <div id="step-case-q4-1" class="card hidden"></div>
+
+  <div id="step-case-q1-2" class="card hidden"></div>
+  <div id="step-case-q2-2" class="card hidden"></div>
+  <div id="step-case-q3-2" class="card hidden"></div>
+  <div id="step-case-q4-2" class="card hidden"></div>
+
+  <!-- ══════════════════════════════════════════
+       DONE
+  ══════════════════════════════════════════ -->
+  <div id="step-done" class="card hidden">
+    <div class="success-box">
+      <h2>Submission recorded</h2>
+      <p id="successMsg">Thank you. Your responses have been saved.</p>
+    </div>
+
+    <!-- ── Send a copy ── -->
+    <div style="margin-top:1.5rem;background:rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.15);border-radius:var(--radius);padding:18px 20px">
+      <div style="font-size:14px;font-weight:600;color:var(--usm-purple);margin-bottom:4px">Would you like a copy of your responses?</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">We can email you a PDF summary of everything you submitted. Your email address will not be stored or used for any other purpose.</p>
+
+      <div id="emailCopySection">
+        <button class="btn btn-primary" onclick="showEmailInput()" id="sendCopyBtn">
+          📄 Send me a PDF copy
+        </button>
+      </div>
+
+      <div id="emailInputSection" class="hidden">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">
+          <input type="email" id="copyEmail" placeholder="Enter your email address"
+            style="flex:1;min-width:220px;padding:9px 12px;font-size:14px;font-family:inherit;border:1px solid var(--usm-purple-mid);border-radius:var(--radius);outline:none;background:var(--bg)" />
+          <button class="btn btn-primary" onclick="sendEmailCopy()" id="confirmEmailBtn">Send PDF</button>
+          <button class="btn" onclick="hideEmailInput()">Cancel</button>
+        </div>
+        <div id="emailValMsg" class="hidden" style="font-size:13px;color:#a32d2d;margin-top:6px"></div>
+      </div>
+
+      <div id="emailSendingMsg" class="hidden" style="font-size:13px;color:var(--usm-purple);margin-top:8px">⏳ Generating your PDF and sending — this may take a few seconds...</div>
+      <div id="emailSuccessMsg" class="hidden" style="font-size:13px;color:#2a6b2a;margin-top:8px;font-weight:500">✅ PDF sent! Please check your inbox (and spam folder if you don't see it).</div>
+      <div id="emailErrorMsg"   class="hidden" style="font-size:13px;color:#a32d2d;margin-top:8px"></div>
+    </div>
+
+    <div style="margin-top:1rem;display:flex;gap:8px;justify-content:center">
+      <button class="btn btn-primary" onclick="resetForm()">New submission</button>
+    </div>
+    <div id="summaryPreview" style="margin-top:1.25rem"></div>
+  </div>
+
+</div><!-- end .page -->
+
+<div style="text-align:center;padding:18px 24px;font-size:12px;color:var(--text2);border-top:0.5px solid var(--border);background:var(--bg2);margin-top:2rem">
+  For any clarification or help, contact researcher Vanessa at <a href="tel:0178460984" style="color:var(--usm-purple);font-weight:600;text-decoration:none">017&nbsp;846&nbsp;0984</a>
+  <!-- restoreBanner placeholder — moved to details card -->
+  <div id="restoreBannerPlaceholder" class="hidden">
+    <div>
+      <strong>You have a saved session</strong> from <span id="restoreTime"></span>.<br>
+      Would you like to continue where you left off?
+    </div>
+    <div class="restore-banner-btns">
+      <button class="restore-btn-yes" onclick="restoreProgress()">Restore my progress</button>
+      <button class="restore-btn-no"  onclick="dismissRestore()">Start fresh</button>
+    </div>
+  </div>
+
+  <!-- ── Floating save button ── -->
+  <div class="save-float" id="saveFloat">
+    <div class="save-float-msg" id="saveFloatMsg">Progress saved to this browser ✓</div>
+    <button class="save-float-btn" onclick="saveProgress()">💾 Save progress</button>
+  </div>
+
+
+  <!-- ── Accessibility font size widget ── -->
+  <div class="a11y-widget" role="group" aria-label="Font size controls">
+    <span class="a11y-label">A</span>
+    <button class="a11y-btn" onclick="adjustFont(-1)" aria-label="Decrease font size" title="Decrease font size">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="3" y="14" font-family="Inter,sans-serif" font-size="13" font-weight="600" fill="white">A</text>
+        <line x1="11" y1="9" x2="17" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div class="a11y-divider"></div>
+    <button class="a11y-btn" onclick="adjustFont(1)" aria-label="Increase font size" title="Increase font size">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <text x="2" y="15" font-family="Inter,sans-serif" font-size="15" font-weight="700" fill="white">A</text>
+        <line x1="13" y1="10" x2="19" y2="10" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="16" y1="7" x2="16" y2="13" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div class="a11y-divider"></div>
+    <button class="a11y-btn" onclick="resetFont()" aria-label="Reset font size" title="Reset to default" style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);width:auto;padding:0 4px;border-radius:4px">
+      Reset
+    </button>
+  </div>
+
+</div>
+
+<script>
+
+// ─────────────────────────────────────────────────────────────────
+//  SAVE & RESTORE PROGRESS — localStorage
+// ─────────────────────────────────────────────────────────────────
+
+const SAVE_KEY = 'delphi_r1_progress';
+let _formStarted = false;
+
+function collectDetailsFields() {
+  return {
+    partName:      document.getElementById('partName')?.value       || '',
+    partRole:      document.getElementById('partRole')?.value       || '',
+    partDept:      document.getElementById('partDept')?.value       || '',
+    partDeptOther: document.getElementById('partDeptOther')?.value  || '',
+    partExp:       document.getElementById('partExp')?.value        || '',
+    partTenderExp: document.querySelector('input[name="partTenderExp"]:checked')?.value || ''
+  };
+}
+
+function saveProgress() {
+  try {
+    // Safely serialise caseState — strip any non-serialisable values
+    // Save decision problem state
+    const dpAnswer   = document.querySelector('input[name=dpAnswer]:checked')?.value || 'agree';
+    const dpAmendment = document.getElementById('dpAmendment')?.value || '';
+
+    const safeState = caseState.map(function(st) {
+      return {
+        q1aChoices:        st.q1aChoices        || {},
+        q1aAmendment:      st.q1aAmendment      || '',
+        q1bChoices:        st.q1bChoices        || {},
+        customCriteria:    (st.customCriteria   || []).map(function(r){ return {cls:r.cls,name:r.name,def:r.def,perfLevels:r.perfLevels||''}; }),
+        customWajib:       (st.customWajib      || []).map(function(r){ return {name:r.name,def:r.def}; }),
+        defAnswers:        st.defAnswers         || {},
+        defRefinements:    st.defRefinements     || {},
+        selected:          (st.selected         || []).map(function(s){ return {cat:s.cat,name:s.name,desc:s.desc,isCustom:s.isCustom||false,movedFromMandatory:s.movedFromMandatory||false}; }),
+        perfAnswers:       st.perfAnswers        || {},
+        perfRefinements:   st.perfRefinements    || {},
+        preloadedFromCase1: st.preloadedFromCase1 || false
+      };
+    });
+    const payload = {
+      savedAt:    new Date().toISOString(),
+      details:    collectDetailsFields(),
+      dpAnswer:   dpAnswer,
+      dpAmendment: dpAmendment,
+      caseState:  safeState
+    };
+    const serialised = JSON.stringify(payload);
+    localStorage.setItem(SAVE_KEY, serialised);
+    // Show confirmation message
+    const msg = document.getElementById('saveFloatMsg');
+    if (msg) {
+      msg.style.opacity = '1';
+      setTimeout(function() { msg.style.opacity = '0'; }, 2500);
+    }
+    return true;
+  } catch(e) {
+    console.warn('Save failed:', e);
+    return false;
+  }
+}
+
+function clearSavedProgress() {
+  try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+}
+
+function restoreProgress() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    const d = data.details || {};
+    if (d.partName)      { const el = document.getElementById('partName');      if (el) el.value = d.partName; }
+    if (d.partRole)      { const el = document.getElementById('partRole');      if (el) el.value = d.partRole; }
+    if (d.partDept)      { const el = document.getElementById('partDept');      if (el) { el.value = d.partDept; toggleOtherInst(); } }
+    if (d.partDeptOther) { const el = document.getElementById('partDeptOther'); if (el) el.value = d.partDeptOther; }
+    if (d.partExp)       { const el = document.getElementById('partExp');       if (el) el.value = d.partExp; }
+    if (d.partTenderExp) {
+      const radio = document.querySelector('input[name="partTenderExp"][value="' + d.partTenderExp + '"]');
+      if (radio) radio.checked = true;
+    }
+    if (data.caseState) {
+      data.caseState.forEach(function(st, i) { caseState[i] = st; });
+    }
+    // Restore decision problem
+    if (data.dpAnswer) {
+      const radio = document.querySelector('input[name=dpAnswer][value="' + data.dpAnswer + '"]');
+      if (radio) { radio.checked = true; toggleDPField(); }
+    }
+    if (data.dpAmendment) {
+      const ta = document.getElementById('dpAmendment');
+      if (ta) ta.value = data.dpAmendment;
+    }
+    dismissRestore();
+    _formStarted = true;
+  } catch(e) { console.warn('Restore failed:', e); dismissRestore(); }
+}
+
+function dismissRestore() {
+  const banner = document.getElementById('restoreBanner');
+  if (banner) banner.classList.add('hidden');
+}
+
+function checkForSavedSession() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (!data.savedAt) return;
+    const saved = new Date(data.savedAt);
+    const timeStr = saved.toLocaleDateString('en-MY', { day:'2-digit', month:'short' }) +
+                    ' at ' + saved.toLocaleTimeString('en-MY', { hour:'2-digit', minute:'2-digit' });
+    const timeEl = document.getElementById('restoreTime');
+    if (timeEl) timeEl.textContent = timeStr;
+    const banner = document.getElementById('restoreBanner');
+    if (banner) banner.classList.remove('hidden');
+  } catch(e) {}
+}
+
+function markSubmitted() {
+  _formStarted = false;
+  clearSavedProgress();
+}
+
+function markFormStarted() {
+  _formStarted = true;
+}
+
+function autoSave() {
+  // no-op — saving handled by nav() and save button
+}
+
+// beforeunload warning
+window.addEventListener('beforeunload', function(e) {
+  if (!_formStarted) return;
+  try { saveProgress(); } catch(err) {}
+  e.preventDefault();
+  e.returnValue = 'Please save your work before leaving — your progress has been saved to this browser and you can restore it when you return.';
+});
+
+// Check for saved session — called after initial nav sets up the DOM
+function tryCheckSavedSession() {
+  checkForSavedSession();
+}
+
+
+// ─────────────────────────────────────────────────────────────────
+//  ACCESSIBILITY — Font size control
+// ─────────────────────────────────────────────────────────────────
+const FONT_STEPS  = [0.85, 0.9, 0.95, 1, 1.1, 1.2, 1.35, 1.5];
+const FONT_DEFAULT = 3; // index of 1.0 in FONT_STEPS
+let fontIdx = FONT_DEFAULT;
+
+function applyFont(idx) {
+  fontIdx = Math.max(0, Math.min(FONT_STEPS.length - 1, idx));
+  const size = Math.round(15 * FONT_STEPS[fontIdx] * 100) / 100;
+  document.body.style.fontSize = size + 'px';
+  try { localStorage.setItem('delphiFontIdx', fontIdx); } catch(e) {}
+}
+
+function adjustFont(dir) { applyFont(fontIdx + dir); }
+function resetFont()      { applyFont(FONT_DEFAULT); }
+
+// Restore saved preference on load
+(function() {
+  try {
+    const saved = localStorage.getItem('delphiFontIdx');
+    if (saved !== null) applyFont(parseInt(saved, 10));
+  } catch(e) {}
+})();
+
+// ─────────────────────────────────────────────────────────────
+//  FORM VERSION
+// ─────────────────────────────────────────────────────────────
+const FORM_VERSION = '2.0';
+const BACKEND_URL  = 'https://script.google.com/macros/s/AKfycbzRfYGm8QM-6FNIxBWlDWqz6hiKdsTPG3KO5FUjE0yUWf4irpUN74jxROm91U1jwhY/exec';
+
+// ─────────────────────────────────────────────────────────────
+//  CASE DEFINITIONS
+// ─────────────────────────────────────────────────────────────
+const CASES = [
+  { id:0, name:'Gliclazide',   label:'Procurement case I',
+    summary:'Evaluation of off-patent Gliclazide alternatives for tender procurement at healthcare facilities, assessing both technical and financial performance to achieve highest value-for-money.' },
+  { id:1, name:'Ceftriaxone',    label:'Procurement case II',
+    summary:'Evaluation of off-patent Ceftriaxone alternatives for tender procurement at healthcare facilities, assessing both technical and financial performance to achieve highest value-for-money.' },
+  { id:2, name:'Levothyroxine', label:'Procurement case III',
+    summary:'Evaluation of off-patent Levothyroxine alternatives for tender procurement at healthcare facilities, assessing both technical and financial performance to achieve highest value-for-money.' }
+];
+
+// ─────────────────────────────────────────────────────────────
+//  CASE CONTEXT BANNER — shown at top of every question screen
+// ─────────────────────────────────────────────────────────────
+function caseHeader(ci) {
+  const c = CASES[ci];
+  const descriptions = [
+    'Gliclazide is a second-generation sulfonylurea used primarily in the management of Type 2 Diabetes Mellitus (T2DM). It is distinguished within its class by its partial selectivity for pancreatic sulfonylurea receptors and its perceived cardiovascular safety profile.<br><br>This drug belongs to the top 2 utilised therapeutic subgroup and was shown to have high utilization and expenditure in 2019–2022. A total of 36 products is registered across three strengths: 30mg (10 products), 60mg (10 products), 80mg (16 products). They are available in multiple oral formulations, including both immediate-release and modified-release dosage forms.',
+    'Ceftriaxone is utilized as a broad-spectrum, once-daily parenteral agent for the treatment of community-acquired pneumonia, complicated urinary tract infections, and as a common choice for surgical prophylaxis.<br><br>It was shown to have the highest utilisation in both all wards and ICU categories from 2008 till 2017. A total of 28 products is registered across three strengths: 1g (15 products), 500mg (9 products), and 250mg (4 products).',
+    'Levothyroxine sodium is a synthetic form of thyroxine T4 used as first-line replacement therapy for hypothyroidism to restore normal metabolic function. Due to its Narrow Therapeutic Index (NTI), brand interchangeability is limited.<br><br>The utilisation of levothyroxine in the public sectors increased by 37% in 2022 compared to 2017. A total of 8 products is available across three strengths: 25mcg (2 products), 50mcg (3 products), 100mcg (3 products).'
+  ];
+  return `<div style="background:var(--usm-purple-light);border:0.5px solid var(--usm-purple-mid);border-radius:var(--radius);padding:14px 16px;margin-bottom:1.25rem">
+    <div style="font-size:11px;font-weight:600;color:var(--usm-purple);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;opacity:0.6">${c.label}</div>
+    <div style="font-size:18px;font-weight:600;color:var(--usm-purple);margin-bottom:8px">💊 ${c.name}</div>
+    <div style="font-size:11px;font-weight:600;color:var(--usm-purple);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;opacity:0.6">Case details</div>
+    <div style="font-size:13px;color:var(--usm-purple);line-height:1.7;opacity:0.75">${descriptions[ci]}</div>
+  </div>`;
+}
+// ─────────────────────────────────────────────────────────────
+//  WAJIB CRITERIA — fixed 13 for Q1A (never appear in Q1B onwards)
+// ─────────────────────────────────────────────────────────────
+const WAJIB_CRITERIA = [
+  { name:"Product's basic profile: indication, formulation and strength",
+    desc:"The pharmaceutical profile consisting the indication refers to the specific clinical condition for use that has been approved by the authority, in the formulation referring to the specific dosage form, at the strength that refers to the quantitative potency of the active ingredient per unit dose." },
+  { name:"Product's pharmaceutical equivalence",
+    desc:"Products with the identical dosage forms and route of administration that contain identical amounts of the identical active pharmaceutical ingredient (API)." },
+  { name:"Product's bioequivalence",
+    desc:"The property of an oral OPP product when bioequivalence is shown to be 90% confidence interval for the ratio of the test and reference products should be within the accepted interval of 80–125%. For generic oral preparations that are not registered in Malaysia, a Bioequivalence (BE) study report must be included." },
+  { name:"Product's level of interchangeability",
+    desc:"The property of a pharmaceutical product that is therapeutically equivalent to its reference pharmaceutical product, thereby allowing for therapeutic substitution." },
+  { name:"Product's sample",
+    desc:"At least 2 boxes of samples are included. Samples must be in original packaging that can be inspected during the assessment process. Samples must be included in original packaging approved by DCA. Sample exemption for psychotropic drugs, dangerous drugs and unregistered drugs." },
+  { name:"Product's label",
+    desc:"The label on the bottle/strip/vial/ampoule/tube/package must meet the requirements of the DCA, namely: name of drug, content and quantity of active ingredient, batch number, expiry date, manufacturer, storage temperature, volume of product per vial/ampoule/bottle (if applicable)." },
+  { name:"Product's packaging",
+    desc:"Products must meet the requirements of the DCA and specific packaging needs of the tender." },
+  { name:"Manufacturer's site quality certification",
+    desc:"Manufacturing facility that operates in accordance with the Good Manufacturing Practice (GMP) standards that is audited and certified by NPRA or a PIC/S member." },
+  { name:"Manufacturer's quality assurance of APIs and production process",
+    desc:"The control of manufacturing steps and active pharmaceutical ingredients (APIs) to ensure batch-to-batch consistency." },
+  { name:"Service in pharmacovigilance",
+    desc:"Manufacturer's pharmacovigilance infrastructure for monitoring safety profiles of manufactured pharmaceuticals." },
+  { name:"Service in technical assistance",
+    desc:"Provision of expert support such as drug information service." },
+  { name:"Supply conditions (perihal bekalan)",
+    desc:"For discontinued drugs, the supplier must notify in writing the Head of the Pharmacy Department, the relevant hospital at least 6 months before action is taken. For drugs recalled from the market and supply disruptions, the supplier must notify in writing the Head of the Pharmacy Department, the relevant hospital as soon as possible." },
+  { name:"Statutory Compliance (EPF/SOCSO)",
+    desc:"Verification of the latest 3 months' contribution statements. Non-compliance results in immediate rejection." }
+];
+
+// ─────────────────────────────────────────────────────────────
+//  MCDA CRITERIA — 13 criteria for Q1B onwards
+// ─────────────────────────────────────────────────────────────
+const CRITERIA = [
+  {cat:"Product", name:"Product's excipients, process technology and delivery system",
+   desc:"Product's API, excipients namely inactive materials such as binders and lubricants, process technology including manufacturing methods, and delivery system such as standard dosage forms, specialised coatings or release products to ensure therapeutic efficacy and safety.",
+   perfLevels:[
+     {num:"1",text:"Standard performance that incorporates restricted excipients (e.g. Red 2G), using established technologies (e.g. batch manufacturing) to produce conventional delivery systems (e.g. immediate release)."},
+     {num:"2",text:"Optimal performance using no restricted excipients or using advanced process technology (e.g. continuous manufacturing) or delivery system (e.g. specialised coating)."}
+   ]},
+
+  {cat:"Product", name:"Product status in the Malaysian market",
+   desc:"Marketing status of the drug in the Malaysian market.",
+   perfLevels:[
+     {num:"1",text:"Not marketed / no information."},
+     {num:"2",text:"Marketed without start year or list of facilities stated."},
+     {num:"3",text:"Marketed, start year and list of facilities stated."}
+   ]},
+  {cat:"Product", name:"Product's expiration date",
+   desc:"The date on the label indicating when a product is expected to remain within its approved quality specifications, provided it has been stored under defined conditions. (a) The expiry date of the medicine at the time of delivery must be 18 months or more. (b) If less than 18 months, a Letter of Undertaking must be submitted. Notification to the company will be made at least 2 months from the expiry date of the medicine. Replacement must be done within 1 month after notification, and the replaced medicine must be taken back within one month after the expiry date. (c) Delivery of medicines with an expiry date less than 6 months from the actual expiry date will not be accepted even if a Letter of Undertaking is provided.",
+   perfLevels:[
+     {num:"0",text:"Disagree with the conditions set."},
+     {num:"1",text:"Agree with some of the conditions set."},
+     {num:"2",text:"Agree with all of the conditions set."}
+   ]},
+  {cat:"Service", name:"Service in distribution and delivery services (tempoh serahan)",
+   desc:"The comprehensive distribution system of quality assurance encompassing environmental control, transportation security and protocols of traceability maintenance during all stages of supply chain and commitment to meet supply contract needs.",
+   perfLevels:[
+     {num:"0",text:"Does not meet delivery requirement."},
+     {num:"1",text:"Meets sub-optimal delivery requirement."},
+     {num:"2",text:"Meets ideal delivery requirement."}
+   ]},
+  {cat:"Service", name:"Supply description (perihal bekalan)",
+   desc:"The estimated quantity required for 2 years.",
+   perfLevels:[
+     {num:"0",text:"The total quantity offered is less than the total quantity ordered."},
+     {num:"1",text:"The total quantity offered exceeds the total quantity ordered."},
+     {num:"2",text:"The total quantity offered equals the total quantity ordered."}
+   ]},
+  {cat:"Manufacturer", name:"Manufacturer's supply track record",
+   desc:"Past performance of manufacturer in fulfilling contractual obligations on time and in full.",
+   perfLevels:[
+     {num:"1",text:"Newly registered product or with a history of significant supply disruptions or recalls."},
+     {num:"2",text:"Consistent supply but with occasional minor delivery issues over the past 1–3 years."},
+     {num:"3",text:"No stock-out issues reported in the past 5 years."}
+   ]},
+  {cat:"Manufacturer", name:"Manufacturer's local investment",
+   desc:"The manufacturing company's contribution to the local economy through ownership of local manufacturing plant, contract manufacturing with local firms or participation in local research and development activities.",
+   perfLevels:[
+     {num:"1",text:"Local participation only through distributorship."},
+     {num:"2",text:"Partial local company."},
+     {num:"3",text:"Fully locally manufactured product."}
+   ]},
+  {cat:"Manufacturer", name:"Manufacturer's history and sustainability of company",
+   desc:"Assessment of the company's operational and financial stability to ensure long term sustainable healthcare partner by reviewing the audited financial statement from 2–3 years of audited accounts from bidder to check for consistent profit/loss trends and total net worth.",
+   perfLevels:[
+     {num:"1",text:"Consecutive losses or negative equity."},
+     {num:"2",text:"2 out of 3 years profit."},
+     {num:"3",text:"3 consecutive years of profit with positive net worth."}
+   ]},
+  {cat:"Service", name:"Service in disease awareness and continued medical education",
+   desc:"Non-promotional initiatives that improve public health literacy that aligns with the National Medicines Policy. Educational support by accredited organisations which may contribute to Continuing Professional Development (CPD) points to maintain and enhance professional knowledge, skills and performance of healthcare professionals.",
+   perfLevels:[
+     {num:"1",text:"No educational support provided."},
+     {num:"2",text:"Basic product information and support upon request."},
+     {num:"3",text:"Proactive opportunities by company to ensure engagement and educational support."}
+   ]},
+  {cat:"Economic", name:"Price Analysis",
+   desc:"Evaluation of the bid against the Jabatan Estimate (JE). Bids significantly lower or higher than the JE are flagged.",
+   perfLevels:[
+     {num:"1",text:"Outside ideal range."},
+     {num:"2",text:"Fair (−20% to +10% of JE)."},
+     {num:"3",text:"Excellent (within ±5% of JE)."}
+   ]},
+  {cat:"Economic", name:"Paid-Up Capital & MOF Registration",
+   desc:"Minimum paid-up capital must match the MOF Kod Bidang requirement for that tender value.",
+   perfLevels:[
+     {num:"0",text:"Does not meet minimum stipulated paid-up capital of the contracted value."},
+     {num:"1",text:"Meets minimum paid-up capital."}
+   ]},
+  {cat:"Economic", name:"Bumiputera Margin of Preference (MOP)",
+   desc:"Price preference is given to qualified Bumiputera bidders depending on procurement value limit subject to Free Trade Agreement (FTA).",
+   perfLevels:[
+     {num:"0",text:"Non-Bumiputera with no adjustments applied."},
+     {num:"1",text:"Bumiputera sole importers eligible for tiered MOP (2.5% up to 20%)."},
+     {num:"2",text:"Bumiputera manufacturers eligible for maximum MOP (3% up to 10%)."}
+   ]},
+  {cat:"Economic", name:"Green Procurement Compliance",
+   desc:"New for 2025/2026: Financial weightage is given to vendors with \"Green Label\" certifications, reducing long-term lifecycle costs.",
+   perfLevels:[
+     {num:"1",text:"No green compliance."},
+     {num:"2",text:"Manufacturer has ISO 14001 but product is not certified."},
+     {num:"3",text:"MyHIJAU/Eco-label certified product."}
+   ]}
+];
+
+// ─────────────────────────────────────────────────────────────
+//  STATE — one state object per case
+// ─────────────────────────────────────────────────────────────
+function freshCaseState() {
+  return {
+    selected:[], flagged:[], dragSrc:null,
+    q1aChoices:{}, customWajib:[],
+    q1bChoices:{}, customCriteria:[],
+    preloadedFromCase1: false
+  };
+}
+const caseState = [freshCaseState(), freshCaseState(), freshCaseState()];
+let currentCase = 0;
+
+// ─────────────────────────────────────────────────────────────
+//  STEPPER
+// ─────────────────────────────────────────────────────────────
+const STEP_CONFIG = [
+  { id:'details',       lbl:'Your details' },
+  { id:'intro',         lbl:'Introduction' },
+  { id:'decision',      lbl:'Decision problem' },
+  { id:'case-intro-0',  lbl:'Case I intro' },
+  { id:'case-q1-0',     lbl:'Case I — Q1' },
+  { id:'case-q2-0',     lbl:'Case I — Q2' },
+  { id:'case-q3-0',     lbl:'Case I — Q3' },
+  { id:'case-q4-0',     lbl:'Case I — Q4' },
+  
+  { id:'case-intro-1',  lbl:'Case II intro' },
+  { id:'case-q1-1',     lbl:'Case II — Q1' },
+  { id:'case-q2-1',     lbl:'Case II — Q2' },
+  { id:'case-q3-1',     lbl:'Case II — Q3' },
+  { id:'case-q4-1',     lbl:'Case II — Q4' },
+  
+  { id:'case-intro-2',  lbl:'Case III intro' },
+  { id:'case-q1-2',     lbl:'Case III — Q1' },
+  { id:'case-q2-2',     lbl:'Case III — Q2' },
+  { id:'case-q3-2',     lbl:'Case III — Q3' },
+  { id:'case-q4-2',     lbl:'Case III — Q4' },
+  
+  { id:'done',          lbl:'Done' }
+];
+
+// Build stepper dots once
+function buildStepper() {
+  const container = document.getElementById('progressSteps');
+  // We show a simplified 7-node stepper: Details | Intro | Decision | Case I | Case II | Case III | Done
+  const nodes = [
+    { lbl:'Details' },
+    { lbl:'Introduction' },
+    { lbl:'Decision problem' },
+    { lbl:'Case I' },
+    { lbl:'Case II' },
+    { lbl:'Case III' },
+    { lbl:'Done' }
+  ];
+  container.innerHTML = nodes.map((n, i) => {
+    const isLast = i === nodes.length - 1;
+    return `<div class="step-node${isLast?' style="flex:0"':''}">
+      <div class="step-dot" id="sdot${i}">
+        <span class="step-dot-num" id="sdotnum${i}">${i === nodes.length-1 ? '&#10003;' : i+1}</span>
+        <span class="step-dot-lbl">${n.lbl}</span>
+      </div>
+      ${!isLast ? `<div class="step-line" id="sline${i}"></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function updateStepper(stepId) {
+  // Map step IDs to stepper node index
+  const map = {
+    'details':0, 'intro':1, 'decision':2,
+    'case-intro-0':3,'case-q1-0':3,'case-q2-0':3,'case-q3-0':3,'case-q4-0':3,
+    'case-intro-1':4,'case-q1-1':4,'case-q2-1':4,'case-q3-1':4,'case-q4-1':4,
+    'case-intro-2':5,'case-q1-2':5,'case-q2-2':5,'case-q3-2':5,'case-q4-2':5,
+    'done':6
+  };
+  const active = map[stepId] ?? 0;
+  for (let i = 0; i <= 6; i++) {
+    const dot  = document.getElementById('sdot'    + i);
+    const num  = document.getElementById('sdotnum' + i);
+    const line = document.getElementById('sline'   + i);
+    if (dot) { dot.classList.toggle('active', i === active); dot.classList.toggle('done', i < active); }
+    if (num) num.innerHTML = i < active ? '&#10003;' : (i === 6 ? '&#10003;' : i + 1);
+    if (line) line.classList.toggle('done', i < active);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  NAVIGATION
+// ─────────────────────────────────────────────────────────────
+let currentStep = 'details';
+
+function nav(stepId) {
+  // Validate details step before leaving
+  if (currentStep === 'details' && stepId !== 'details') {
+    const name       = document.getElementById('partName').value.trim();
+    const role       = document.getElementById('partRole').value.trim();
+    const deptSel    = document.getElementById('partDept').value.trim();
+    const deptOther  = document.getElementById('partDeptOther')?.value.trim() || '';
+    const dept       = deptSel === 'Others' ? deptOther : deptSel;
+    const exp        = document.getElementById('partExp').value.trim();
+    const tenderExp  = document.querySelector('input[name="partTenderExp"]:checked')?.value || '';
+    if (!name || !role || !dept || !exp || !tenderExp) {
+      document.getElementById('detailsValidationMsg').classList.remove('hidden');
+      return;
+    }
+    document.getElementById('detailsValidationMsg').classList.add('hidden');
+  }
+  // Hide all
+  document.querySelectorAll('[id^="step-"]').forEach(el => el.classList.add('hidden'));
+  // Show target
+  const el = document.getElementById('step-' + stepId);
+  if (el) el.classList.remove('hidden');
+  currentStep = stepId;
+  updateStepper(stepId);
+  // Welcome paragraph only visible on the first page
+  const welcome = document.getElementById('header-welcome');
+  if (welcome) welcome.classList.toggle('hidden', stepId !== 'details');
+  window.scrollTo({ top:0, behavior:'smooth' });
+  if (typeof saveProgress === 'function' && _formStarted) saveProgress();
+  // Show restore banner when on details page
+  if (stepId === 'details' && typeof checkForSavedSession === 'function') {
+    checkForSavedSession();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  DECISION PROBLEM toggle
+// ─────────────────────────────────────────────────────────────
+function toggleDPField() {
+  const val = document.querySelector('input[name=dpAnswer]:checked')?.value;
+  document.getElementById('dpTextField').classList.toggle('hidden', val !== 'amend');
+  document.getElementById('dpValidationMsg').classList.add('hidden');
+}
+
+function navDP() {
+  const val = document.querySelector('input[name=dpAnswer]:checked')?.value;
+  if (!val) {
+    document.getElementById('dpValidationMsg').classList.remove('hidden');
+    return;
+  }
+  if (val === 'amend') {
+    const ta = document.getElementById('dpAmendment');
+    if (!ta || !ta.value.trim()) {
+      const msg = document.getElementById('dpValidationMsg');
+      msg.textContent = 'Please describe your suggested amendments before proceeding.';
+      msg.classList.remove('hidden');
+      ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
+  document.getElementById('dpValidationMsg').classList.add('hidden');
+  nav('case-intro-0');
+}
+
+// ─────────────────────────────────────────────────────────────
+//  CASE START — build Q1–Q5 HTML for a given case
+// ─────────────────────────────────────────────────────────────
+function startCase(caseIdx) {
+  currentCase = caseIdx;
+
+  // For Case II and III — pre-populate Q1A and Q1B from Case I if not yet touched
+  if (caseIdx > 0) {
+    const st    = caseState[caseIdx];
+    const case1 = caseState[0];
+    const touchedQ1A = st.q1aChoices && Object.keys(st.q1aChoices).length > 0;
+    const touchedQ1B = st.q1bChoices && Object.keys(st.q1bChoices).length > 0;
+    if (!touchedQ1A && case1.q1aChoices && Object.keys(case1.q1aChoices).length > 0) {
+      st.q1aChoices = JSON.parse(JSON.stringify(case1.q1aChoices));
+      st.preloadedFromCase1 = true;
+    }
+    if (!touchedQ1B && case1.q1bChoices && Object.keys(case1.q1bChoices).length > 0) {
+      st.q1bChoices = JSON.parse(JSON.stringify(case1.q1bChoices));
+      st.preloadedFromCase1 = true;
+    }
+  }
+
+  buildCaseQ1(caseIdx);
+  // buildCaseQ2 built on demand in proceedQ1
+  buildCaseQ4(caseIdx);
+  nav('case-q1-' + caseIdx);
+}
+
+// helper: back nav for each case's back-button on case-intro
+function caseIntroBack(caseIdx) {
+  if (caseIdx === 0) nav('decision');
+  else nav('case-q4-' + (caseIdx - 1));
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Q1 — Q1A (fixed Wajib, collective agree/suggest) +
+//        Q1B (MCDA / Not important per criterion)
+// ─────────────────────────────────────────────────────────────
+function buildCaseQ1(ci) {
+  const st = caseState[ci];
+  const el = document.getElementById('step-case-q1-' + ci);
+  const backTarget = ci === 0 ? 'case-intro-0' : 'case-intro-' + ci;
+  const cn = ['I','II','III'][ci];
+
+  if (!st.q1aChoices) st.q1aChoices = {};
+  WAJIB_CRITERIA.forEach(c => {
+    if (!st.q1aChoices[c.name]) st.q1aChoices[c.name] = { action:'remain', reason:'' };
+  });
+  if (!st.q1bChoices) st.q1bChoices = {};
+  CRITERIA.forEach(c => {
+    if (!st.q1bChoices[c.name]) st.q1bChoices[c.name] = { action:'remain', reason:'' };
+  });
+
+  const btnStyle = (sel, color) =>
+    'display:flex;align-items:center;gap:8px;padding:9px 16px;border:1.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:500;background:var(--bg)';
+
+  // ── Q1A cards ──────────────────────────────────────────────────
+  const wajibCards = WAJIB_CRITERIA.map(function(c, i) {
+    const ch = st.q1aChoices[c.name] || { action:'remain', reason:'' };
+    const showReason = ch.action !== 'remain';
+    const acts = ['remain','remove','move_to_mcda'];
+    const lbls = { remain:'Remain in Mandatory', remove:'Remove', move_to_mcda:'Move to MCDA' };
+    const btns = acts.map(function(act) {
+      const sel = ch.action === act;
+      return '<label style="' + btnStyle(sel,'orange') + '">' +
+        '<input type="radio" name="q1a-act-' + ci + '-' + i + '" value="' + act + '" ' + (sel?'checked':'') + ' onchange="saveQ1AChoice(' + ci + ',' + i + ',\'' + act + '\')" style="accent-color:#1a1a1a;width:15px;height:15px" /> ' + lbls[act] +
+        '</label>';
+    }).join('');
+    return '<div style="border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;background:var(--bg)">' +
+      '<div class="crit-card-name" style="margin-bottom:4px">' + c.name + '</div>' +
+      '<div class="crit-card-desc" style="margin-bottom:10px">' + c.desc + '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">' + btns + '</div>' +
+      '<div id="q1a-reason-wrap-' + ci + '-' + i + '" class="' + (showReason?'':'hidden') + '">' +
+      '<textarea id="q1a-reason-' + ci + '-' + i + '" rows="2" placeholder="Reason for suggestion..." style="width:100%;background:var(--bg);font-size:13px" oninput="saveQ1AReasonText(' + ci + ',' + i + ')">' + (ch.reason||'') + '</textarea>' +
+      '<div id="q1a-reason-msg-' + ci + '-' + i + '" class="hidden" style="font-size:12px;color:#a32d2d;margin-top:4px">Please provide a reason before proceeding.</div>' +
+      '</div></div>';
+  }).join('');
+
+  // ── Q1B cards ──────────────────────────────────────────────────
+  const mcdaCards = CRITERIA.map(function(c, i) {
+    const ch = st.q1bChoices[c.name] || { action:'remain', reason:'' };
+    const showReason = ch.action !== 'remain';
+    const acts = ['remain','remove','move_to_mandatory','merge'];
+    const lbls = { remain:'Remain in MCDA', remove:'Remove', move_to_mandatory:'Move to Mandatory', merge:'Merge' };
+    const btns = acts.map(function(act) {
+      const sel = ch.action === act;
+      return '<label style="' + btnStyle(sel,'purple') + '">' +
+        '<input type="radio" name="q1b-act-' + ci + '-' + i + '" value="' + act + '" ' + (sel?'checked':'') + ' onchange="saveQ1BChoice(' + ci + ',' + i + ',\'' + act + '\')" style="accent-color:#D95E00;width:15px;height:15px" /> ' + lbls[act] +
+        '</label>';
+    }).join('');
+    const placeholder = ch.action === 'merge'
+      ? 'Suggest criteria to merge and carry forward to Q2, Q3, Q4.'
+      : 'Reason for suggestion...';
+    return '<div style="border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;background:var(--bg)">' +
+      '<div class="crit-card-name" style="margin-bottom:4px">' + c.name + '</div>' +
+      '<div class="crit-card-desc" style="margin-bottom:10px">' + c.desc + '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">' + btns + '</div>' +
+      '<div id="q1b-reason-wrap-' + ci + '-' + i + '" class="' + (showReason?'':'hidden') + '">' +
+      '<textarea id="q1b-reason-' + ci + '-' + i + '" rows="2" placeholder="' + placeholder + '" style="width:100%;background:var(--bg);font-size:13px" oninput="saveQ1BReasonText(' + ci + ',' + i + ')">' + (ch.reason||'') + '</textarea>' +
+      '<div id="q1b-reason-msg-' + ci + '-' + i + '" class="hidden" style="font-size:12px;color:#a32d2d;margin-top:4px">Please provide a reason before proceeding.</div>' +
+      '</div></div>';
+  }).join('');
+
+  const n = Object.values(st.q1bChoices).filter(function(v){return v.action==='remain'||v.action==='merge';}).length;
+  const preloadNotice = (ci > 0 && st.preloadedFromCase1)
+    ? '<p style="font-size:0.867em;color:var(--text2);font-style:italic;margin-bottom:12px">Your Case I classifications have been pre-loaded as a starting point. Please review and adjust as needed.</p>'
+    : '';
+
+  el.innerHTML =
+    caseHeader(ci) +
+    '<div style="background:var(--usm-purple-light);border:1px solid var(--usm-purple-mid);border-radius:var(--radius);padding:16px 18px;margin-bottom:1.5rem">' +
+      '<div class="q-label" style="margin-bottom:6px">Case ' + cn + ' \u2014 Question 1A of 4</div>' +
+      '<div class="q-title" style="font-weight:400;margin-bottom:6px">Considering the specific details of Procurement Case ' + cn + ', consider if the below listed criteria are <strong>\'mandatory criteria\'</strong> in the evaluation of a tender bid</div>' +
+      '<div style="font-size:12px;color:var(--usm-orange);margin-bottom:14px;line-height:1.7"><strong>Mandatory criteria:</strong> binary specification / criteria to fulfil and perform positively to meet the minimum standard in order to be considered for evaluation.</div>' +
+      wajibCards +
+      '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--usm-purple-mid)">' +
+        '<div style="font-size:14px;font-weight:600;color:var(--usm-purple);margin-bottom:4px">Suggested mandatory criteria</div>' +
+        '<p style="font-size:13px;color:var(--text2);margin-bottom:12px">If there are mandatory criteria not included in the list above, add them here.</p>' +
+        '<div id="custom-wajib-rows-' + ci + '"></div>' +
+        '<button type="button" onclick="addCustomWajibRow(' + ci + ')" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px dashed var(--usm-purple-mid);border-radius:var(--radius);background:var(--bg);color:var(--usm-purple);font-size:13px;font-weight:600;cursor:pointer;margin-top:8px"><span style="font-size:18px;line-height:1">+</span> Add criterion</button>' +
+      '</div>' +
+    '</div>' +
+    '<div style="background:rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.15);border-radius:var(--radius);padding:16px 18px">' +
+      '<div class="q-label" style="margin-bottom:6px">Case ' + cn + ' \u2014 Question 1B of 4</div>' +
+      '<div class="q-title" style="font-weight:400;margin-bottom:6px">Considering the specific details of Procurement Case ' + cn + ', consider if the below listed criteria should be <strong>\'MCDA criteria\'</strong> or not for the evaluation of a tender bid</div>' +
+      '<div style="font-size:12px;color:#D95E00;margin-bottom:14px;line-height:1.7"><strong>MCDA criteria:</strong> performance-based specification / criteria used to score and rank the eligible alternatives through weighted trade-offs.</div>' +
+      preloadNotice +
+      mcdaCards +
+      '<div id="q1b-val-' + ci + '" class="hidden" style="font-size:13px;color:#a32d2d;margin-top:10px;margin-bottom:4px"></div>' +
+      '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--usm-purple-mid)">' +
+        '<div style="font-size:14px;font-weight:600;color:#D95E00;margin-bottom:4px">Suggested MCDA criteria</div>' +
+        '<p style="font-size:13px;color:var(--text2);margin-bottom:12px">If there are MCDA criteria not included in the list above, add them here. Enter the criteria name and a definition.</p>' +
+        '<div id="custom-rows-' + ci + '"></div>' +
+        '<button type="button" onclick="addCustomRow(' + ci + ')" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px dashed rgba(210,80,0,.4);border-radius:var(--radius);background:rgba(210,80,0,.05);color:#D95E00;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px"><span style="font-size:18px;line-height:1">+</span> Add criterion</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="footer">' +
+      '<span class="sel-count" id="q1count-' + ci + '">' + n + ' MCDA criteri' + (n===1?'on':'a') + ' active</span>' +
+      '<div style="display:flex;gap:8px">' +
+        '<button class="btn" onclick="nav(\'' + backTarget + '\')">&#8592; Back</button>' +
+        '<button class="btn btn-primary" id="q1next-' + ci + '" onclick="proceedQ1(' + ci + ')">Next &#8594;</button>' +
+      '</div>' +
+    '</div>';
+  renderCustomRows(ci);
+  renderCustomWajibRows(ci);
+}
+
+
+function toggleOtherInst() {
+  const sel  = document.getElementById('partDept');
+  const wrap = document.getElementById('otherInstWrap');
+  if (wrap) wrap.classList.toggle('hidden', sel.value !== 'Others');
+}
+
+
+function saveQ1AChoice(ci, idx, action) {
+  const st = caseState[ci];
+  if (!st.q1aChoices) st.q1aChoices = {};
+  const name = WAJIB_CRITERIA[idx].name;
+  if (!st.q1aChoices[name]) st.q1aChoices[name] = { action:'remain', reason:'' };
+  st.q1aChoices[name].action = action;
+  const wrap = document.getElementById(`q1a-reason-wrap-${ci}-${idx}`);
+  if (wrap) wrap.classList.toggle('hidden', action === 'remain');
+  // Clear validation message when action changes
+  const msg = document.getElementById(`q1a-reason-msg-${ci}-${idx}`);
+  if (msg) msg.classList.add('hidden');
+}
+
+function saveQ1AReasonText(ci, idx) {
+  const ta = document.getElementById(`q1a-reason-${ci}-${idx}`);
+  if (!ta) return;
+  const name = WAJIB_CRITERIA[idx].name;
+  if (!caseState[ci].q1aChoices) caseState[ci].q1aChoices = {};
+  if (!caseState[ci].q1aChoices[name]) caseState[ci].q1aChoices[name] = { action:'remain', reason:'' };
+  caseState[ci].q1aChoices[name].reason = ta.value.trim();
+  // Clear red message once they start typing
+  if (ta.value.trim()) {
+    const msg = document.getElementById(`q1a-reason-msg-${ci}-${idx}`);
+    if (msg) msg.classList.add('hidden');
+  }
+}
+
+function saveQ1BChoice(ci, idx, action) {
+  const st = caseState[ci];
+  if (!st.q1bChoices) st.q1bChoices = {};
+  const name = CRITERIA[idx].name;
+  if (!st.q1bChoices[name]) st.q1bChoices[name] = { action:'remain', reason:'' };
+  st.q1bChoices[name].action = action;
+  const wrap = document.getElementById(`q1b-reason-wrap-${ci}-${idx}`);
+  if (wrap) wrap.classList.toggle('hidden', action === 'remain');
+  const ta = document.getElementById(`q1b-reason-${ci}-${idx}`);
+  if (ta) ta.placeholder = action === 'merge'
+    ? 'Suggest criteria to merge and carry forward to Q2, Q3, Q4.'
+    : 'Reason for suggestion...';
+  const n = Object.values(st.q1bChoices).filter(v => v.action==='remain'||v.action==='merge').length;
+  const countEl = document.getElementById('q1count-' + ci);
+  if (countEl) countEl.textContent = n + ' MCDA criteri' + (n===1?'on':'a') + ' active';
+  // Clear validation message when action changes
+  const msg = document.getElementById(`q1b-reason-msg-${ci}-${idx}`);
+  if (msg) msg.classList.add('hidden');
+}
+
+function saveQ1BReasonText(ci, idx) {
+  const ta = document.getElementById(`q1b-reason-${ci}-${idx}`);
+  if (!ta) return;
+  const name = CRITERIA[idx].name;
+  if (!caseState[ci].q1bChoices) caseState[ci].q1bChoices = {};
+  if (!caseState[ci].q1bChoices[name]) caseState[ci].q1bChoices[name] = { action:'remain', reason:'' };
+  caseState[ci].q1bChoices[name].reason = ta.value.trim();
+  if (ta.value.trim()) {
+    const msg = document.getElementById(`q1b-reason-msg-${ci}-${idx}`);
+    if (msg) msg.classList.add('hidden');
+  }
+}
+
+function renderCustomRows(ci) {
+  const st        = caseState[ci];
+  const container = document.getElementById('custom-rows-' + ci);
+  if (!container) return;
+  if (!st.customCriteria) st.customCriteria = [];
+  if (!st.customCriteria.length) { container.innerHTML = ''; return; }
+  container.innerHTML = st.customCriteria.map(function(row, idx) {
+    return '<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:start;margin-bottom:10px;padding:12px 14px;background:var(--usm-purple-light);border:0.5px solid var(--usm-purple-mid);border-radius:var(--radius)">' +
+      '<div>' +
+        '<div style="font-size:11px;font-weight:600;color:var(--usm-purple);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">MCDA Criteria name <span style="color:#a32d2d">*</span></div>' +
+        '<input type="text" id="crow-name-' + ci + '-' + idx + '" value="' + (row.name||'') + '" oninput="saveCustomRow(' + ci + ',' + idx + ')" placeholder="e.g. Cold chain compliance" style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;border:0.5px solid var(--usm-purple-mid);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none;box-sizing:border-box" />' +
+      '</div>' +
+      '<div>' +
+        '<div style="font-size:11px;font-weight:600;color:var(--usm-purple);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Definition <span style="color:#a32d2d">*</span></div>' +
+        '<textarea id="crow-def-' + ci + '-' + idx + '" rows="3" oninput="saveCustomRow(' + ci + ',' + idx + ')" placeholder="Describe what this criterion measures..." style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;border:0.5px solid var(--usm-purple-mid);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none;resize:vertical;box-sizing:border-box">' + (row.def||'') + '</textarea>' +
+      '</div>' +
+      '<div style="padding-top:20px">' +
+        '<button type="button" onclick="removeCustomRow(' + ci + ',' + idx + ')" style="width:30px;height:30px;border-radius:50%;border:0.5px solid rgba(163,45,45,.4);background:rgba(163,45,45,.08);color:#a32d2d;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function addCustomRow(ci) {
+  const st = caseState[ci];
+  if (!st.customCriteria) st.customCriteria = [];
+  st.customCriteria.push({ cls:'am', name:'', def:'', perfLevels:'' });
+  renderCustomRows(ci);
+  const container = document.getElementById('custom-rows-' + ci);
+  if (container) container.lastElementChild && container.lastElementChild.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+function removeCustomRow(ci, idx) {
+  caseState[ci].customCriteria.splice(idx, 1);
+  renderCustomRows(ci);
+}
+
+function saveCustomRow(ci, idx) {
+  const st   = caseState[ci];
+  const name = document.getElementById('crow-name-' + ci + '-' + idx) ? document.getElementById('crow-name-' + ci + '-' + idx).value : '';
+  const def  = document.getElementById('crow-def-'  + ci + '-' + idx) ? document.getElementById('crow-def-'  + ci + '-' + idx).value : '';
+  if (!st.customCriteria) st.customCriteria = [];
+  st.customCriteria[idx] = { cls:'am', name:name, def:def.trim(), perfLevels: (st.customCriteria[idx]||{}).perfLevels || '' };
+}
+
+
+function renderCustomWajibRows(ci) {
+  const st        = caseState[ci];
+  const container = document.getElementById(`custom-wajib-rows-${ci}`);
+  if (!container) return;
+  if (!st.customWajib) st.customWajib = [];
+  if (!st.customWajib.length) { container.innerHTML = ''; return; }
+  container.innerHTML = st.customWajib.map((row, idx) => `
+    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:start;margin-bottom:10px;padding:12px 14px;background:rgba(255,115,0,.07);border:0.5px solid rgba(255,115,0,.3);border-radius:var(--radius)">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--usm-orange);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Criteria name <span style="color:#a32d2d">*</span></div>
+        <input type="text" id="cwaj-name-${ci}-${idx}" value="${row.name||''}" oninput="saveCustomWajibRow(${ci},${idx})"
+          placeholder="e.g. Storage temperature compliance"
+          style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;border:0.5px solid rgba(255,115,0,.3);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none;box-sizing:border-box" />
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--usm-orange);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Definition <span style="color:#a32d2d">*</span></div>
+        <textarea id="cwaj-def-${ci}-${idx}" rows="3" oninput="saveCustomWajibRow(${ci},${idx})"
+          placeholder="Describe what this criterion measures..."
+          style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;border:0.5px solid rgba(255,115,0,.3);border-radius:var(--radius);background:var(--bg);color:var(--text);outline:none;resize:vertical;box-sizing:border-box">${row.def||''}</textarea>
+      </div>
+      <div style="padding-top:20px">
+        <button type="button" onclick="removeCustomWajibRow(${ci},${idx})"
+          style="width:30px;height:30px;border-radius:50%;border:0.5px solid rgba(163,45,45,.4);background:rgba(163,45,45,.08);color:#a32d2d;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>
+      </div>
+    </div>`).join('');
+}
+
+function addCustomWajibRow(ci) {
+  const st = caseState[ci];
+  if (!st.customWajib) st.customWajib = [];
+  st.customWajib.push({ name:'', def:'' });
+  renderCustomWajibRows(ci);
+  const container = document.getElementById(`custom-wajib-rows-${ci}`);
+  if (container) container.lastElementChild?.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+function removeCustomWajibRow(ci, idx) {
+  caseState[ci].customWajib.splice(idx, 1);
+  renderCustomWajibRows(ci);
+}
+
+function saveCustomWajibRow(ci, idx) {
+  const st   = caseState[ci];
+  const name = document.getElementById(`cwaj-name-${ci}-${idx}`)?.value || '';
+  const def  = document.getElementById(`cwaj-def-${ci}-${idx}`)?.value  || '';
+  if (!st.customWajib) st.customWajib = [];
+  st.customWajib[idx] = { name, def: def.trim() };
+}
+
+function proceedQ1(ci) {
+  const st = caseState[ci];
+  if (!st.q1aChoices) st.q1aChoices = {};
+  if (!st.q1bChoices) st.q1bChoices = {};
+
+  // Save custom wajib rows
+  if (!st.customWajib) st.customWajib = [];
+  st.customWajib.forEach((row, idx) => {
+    const name = document.getElementById(`cwaj-name-${ci}-${idx}`)?.value || row.name;
+    const def  = document.getElementById(`cwaj-def-${ci}-${idx}`)?.value  || row.def;
+    st.customWajib[idx] = { name, def: def.trim() };
+  });
+
+  // Save custom MCDA rows
+  if (!st.customCriteria) st.customCriteria = [];
+  st.customCriteria.forEach((row, idx) => {
+    const name = document.getElementById(`crow-name-${ci}-${idx}`)?.value || row.name;
+    const def  = document.getElementById(`crow-def-${ci}-${idx}`)?.value  || row.def;
+    st.customCriteria[idx] = { cls:'am', name, def: def.trim(), perfLevels: row.perfLevels || '' };
+  });
+
+  // Validate Q1A — reason required if action is not remain
+  let firstError = null;
+  let q1aValid = true;
+  WAJIB_CRITERIA.forEach((c, i) => {
+    const ch = st.q1aChoices[c.name] || { action:'remain', reason:'' };
+    if (ch.action !== 'remain' && !ch.reason.trim()) {
+      q1aValid = false;
+      const wrap = document.getElementById(`q1a-reason-wrap-${ci}-${i}`);
+      if (wrap) wrap.classList.remove('hidden');
+      const msg = document.getElementById(`q1a-reason-msg-${ci}-${i}`);
+      if (msg) msg.classList.remove('hidden');
+      if (!firstError) firstError = document.getElementById(`q1a-reason-${ci}-${i}`);
+    }
+  });
+  if (!q1aValid) {
+    if (firstError) firstError.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+
+  // Validate Q1B — reason required if action is not remain
+  let q1bValid = true;
+  CRITERIA.forEach((c, i) => {
+    const ch = st.q1bChoices[c.name] || { action:'remain', reason:'' };
+    if (ch.action !== 'remain' && !ch.reason.trim()) {
+      q1bValid = false;
+      const wrap = document.getElementById(`q1b-reason-wrap-${ci}-${i}`);
+      if (wrap) wrap.classList.remove('hidden');
+      const msg = document.getElementById(`q1b-reason-msg-${ci}-${i}`);
+      if (msg) msg.classList.remove('hidden');
+      if (!firstError) firstError = document.getElementById(`q1b-reason-${ci}-${i}`);
+    }
+  });
+  if (!q1bValid) {
+    if (firstError) firstError.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+
+  // Validate at least 1 MCDA active
+  const mcdaActive = Object.values(st.q1bChoices).filter(v => v.action==='remain'||v.action==='merge').length;
+  if (!mcdaActive) {
+    const msg = document.getElementById('q1b-val-' + ci);
+    if (msg) { msg.textContent = 'Please keep at least one criterion as MCDA before proceeding.'; msg.classList.remove('hidden'); }
+    return;
+  }
+  const valMsg = document.getElementById('q1b-val-' + ci);
+  if (valMsg) valMsg.classList.add('hidden');
+
+  // Build st.selected
+  // 1. Q1B remain or merge
+  st.selected = CRITERIA
+    .filter(c => { const ch = st.q1bChoices[c.name]||{action:'remain'}; return ch.action==='remain'||ch.action==='merge'; })
+    .map(c => ({
+      ...c,
+      proposedDef: st.selected.find(s=>s.name===c.name)?.proposedDef||'',
+      perfFlagged:false, perfRefinement:''
+    }));
+
+  // 2. Q1A moved to MCDA — appended at bottom, no badge
+  WAJIB_CRITERIA.forEach(c => {
+    const ch = st.q1aChoices[c.name]||{action:'remain'};
+    if (ch.action==='move_to_mcda' && !st.selected.some(s=>s.name===c.name)) {
+      st.selected.push({ cat:'Mandatory', name:c.name, desc:c.desc, perfLevels:[],
+        movedFromMandatory:true, proposedDef:'', perfFlagged:false, perfRefinement:'' });
+    }
+  });
+
+  // 3. Custom MCDA criteria
+  (st.customCriteria||[]).forEach(r => {
+    if (!r.name||!r.name.trim()) return;
+    if (!st.selected.some(s=>s.name===r.name))
+      st.selected.push({ cat:'Custom', name:r.name, desc:r.def||'', perfLevels:[],
+        isCustom:true, proposedDef:'', perfFlagged:false, perfRefinement:'' });
+  });
+
+  // Remove stale entries
+  const validNames = [
+    ...CRITERIA.filter(c=>{const ch=st.q1bChoices[c.name]||{action:'remain'};return ch.action==='remain'||ch.action==='merge';}).map(c=>c.name),
+    ...WAJIB_CRITERIA.filter(c=>(st.q1aChoices[c.name]||{action:'remain'}).action==='move_to_mcda').map(c=>c.name),
+    ...(st.customCriteria||[]).map(r=>r.name).filter(Boolean)
+  ];
+  st.selected = st.selected.filter(s => validNames.includes(s.name));
+
+  buildCaseQ2(ci);
+  nav('case-q2-' + ci);
+}
+
+
+function buildCaseQ2(ci) {
+  const st = caseState[ci];
+  const el = document.getElementById('step-case-q2-' + ci);
+  if (!st.defAnswers)    st.defAnswers    = {};
+  if (!st.defRefinements) st.defRefinements = {};
+
+  const emptyMsg = !st.selected.length
+    ? `<div style="background:var(--amber-bg);border:0.5px solid rgba(186,117,23,.3);border-radius:var(--radius);padding:14px 16px;font-size:13px;color:var(--amber-text);line-height:1.6;margin-bottom:1rem">You have not classified any criteria as <em>MCDA criteria</em> in Question 1B. Click Next to proceed, or go back to classify criteria.</div>`
+    : '';
+
+  const items = st.selected.filter(c => !c.isCustom).map((c, i) => {
+    const key   = c.name;
+    const saved = st.defAnswers[key] ?? 'agree';
+    return `
+    <div class="crit-card" style="flex-direction:column;align-items:flex-start;cursor:default;margin-bottom:10px;padding:0;overflow:hidden">
+      <div style="width:100%;padding:10px 14px;background:var(--bg2);border-bottom:0.5px solid var(--border)">
+        <div style="font-size:11px;font-weight:600;color:var(--usm-orange);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Criteria ${i+1} of ${st.selected.length}</div>
+        <div class="crit-card-name">${c.name}</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.65;margin-top:4px">${c.desc}</div>
+      </div>
+      <div style="width:100%;padding:12px 14px;background:var(--bg)">
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">Do you agree with the current definition? <span style="color:#a32d2d">*</span></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+          <label style="display:flex;align-items:center;gap:8px;padding:9px 16px;border:1.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:500;transition:background .1s">
+            <input type="radio" name="q2ans-${ci}-${i}" value="agree" ${saved==='agree'?'checked':''} onchange="toggleQ2Field(${ci},${i})" style="accent-color:#D95E00;width:15px;height:15px" /> Agree
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:9px 16px;border:1.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:500;transition:background .1s">
+            <input type="radio" name="q2ans-${ci}-${i}" value="amend" ${saved==='amend'?'checked':''} onchange="toggleQ2Field(${ci},${i})" style="accent-color:#D95E00;width:15px;height:15px" /> Suggest amendments
+          </label>
+        </div>
+        <div id="q2val-${ci}-${i}" class="hidden" style="font-size:13px;color:#a32d2d;margin-bottom:8px">Please describe your suggested amendments before proceeding.</div>
+        <div id="q2ta-wrap-${ci}-${i}" class="${saved==='amend'?'':'hidden'}">
+          <textarea id="q2ta-${ci}-${i}" rows="4" placeholder="Suggest any changes, additions, or corrections to improve accuracy..." style="width:100%;background:var(--bg)">${st.defRefinements[key]||''}</textarea>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    ${caseHeader(ci)}
+    <div class="q-label">Case ${['I','II','III'][ci]} — Question 2 of 4</div>
+    <div class="q-title">Evaluate the definition for accuracy and propose refinements as you deem necessary for the <strong>'MCDA criteria'</strong> listed below.</div>
+    ${emptyMsg}${items}
+    <div class="footer">
+      <span style="font-size:13px;color:var(--text2)">${st.selected.length} criteri${st.selected.length===1?'on':'a'} to review</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="nav('case-q1-${ci}')">&#8592; Back</button>
+        <button class="btn btn-primary" onclick="proceedQ2(${ci})">Next &#8594;</button>
+      </div>
+    </div>`;
+}
+
+function toggleQ2Field(ci, i) {
+  const val  = document.querySelector(`input[name="q2ans-${ci}-${i}"]:checked`)?.value;
+  const wrap = document.getElementById(`q2ta-wrap-${ci}-${i}`);
+  const msg  = document.getElementById(`q2val-${ci}-${i}`);
+  if (wrap) wrap.classList.toggle('hidden', val !== 'amend');
+  if (msg)  msg.classList.add('hidden');
+  const st = caseState[ci];
+  if (!st.defAnswers) st.defAnswers = {};
+  const key = st.selected[i]?.name;
+  if (key) st.defAnswers[key] = val;
+}
+
+function proceedQ2(ci) {
+  const st = caseState[ci];
+  if (!st.defAnswers)     st.defAnswers     = {};
+  if (!st.defRefinements) st.defRefinements = {};
+
+  // Validate — text required if suggest amendments selected
+  let allValid = true;
+  let firstError = null;
+  st.selected.forEach((c, i) => {
+    const val = document.querySelector(`input[name="q2ans-${ci}-${i}"]:checked`)?.value || 'agree';
+    if (val === 'amend') {
+      const ta  = document.getElementById(`q2ta-${ci}-${i}`);
+      const msg = document.getElementById(`q2val-${ci}-${i}`);
+      if (!ta || !ta.value.trim()) {
+        if (msg) { msg.textContent = 'Please describe your suggested amendments before proceeding.'; msg.classList.remove('hidden'); }
+        if (!firstError) firstError = document.getElementById(`q2ta-wrap-${ci}-${i}`) || msg;
+        allValid = false;
+      } else {
+        if (msg) msg.classList.add('hidden');
+      }
+    }
+  });
+  if (!allValid) {
+    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  st.selected.forEach((c, i) => {
+    const val = document.querySelector(`input[name="q2ans-${ci}-${i}"]:checked`)?.value || 'agree';
+    st.defAnswers[c.name] = val;
+    const ta = document.getElementById(`q2ta-${ci}-${i}`);
+    if (ta) st.defRefinements[c.name] = ta.value.trim();
+    c.proposedDef = val === 'amend' ? (st.defRefinements[c.name] || '') : '';
+  });
+  buildCaseQ3(ci);
+  nav('case-q3-' + ci);
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Q3 — Ranking
+// ─────────────────────────────────────────────────────────────
+function buildCaseQ3(ci) {
+  const st = caseState[ci];
+  const el = document.getElementById('step-case-q3-' + ci);
+  const items = st.selected.map((c, i) => `
+    <li class="rank-item" draggable="true" id="ri-${ci}-${i}"
+      ondragstart="dragStart(event,${ci},${i})" ondragover="dragOver(event,${ci},${i})"
+      ondrop="doDrop(event,${ci},${i})" ondragend="dragEnd(${ci})">
+      <div class="drag-handle"><span></span><span></span><span></span></div>
+      <div class="rank-num" id="rn-${ci}-${i}">${i+1}</div>
+      <div style="flex:1">
+        ${c.isCustom ? `<div style="font-size:10px;font-weight:600;color:var(--usm-orange);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Suggested criterion</div>` : ''}
+        <div class="crit-name">${c.name}</div>
+        <div class="crit-desc" style="font-size:12px;margin-top:2px">${c.desc}</div>
+      </div>
+    </li>`).join('');
+
+  const emptyMsgQ3 = !st.selected.length
+    ? `<div style="background:var(--amber-bg);border:0.5px solid rgba(186,117,23,.3);border-radius:var(--radius);padding:14px 16px;font-size:13px;color:var(--amber-text);line-height:1.6;margin-bottom:1rem">You have not classified any criteria as <em>MCDA criteria</em> in Question 1B. Click Next to proceed, or go back to classify criteria.</div>`
+    : '';
+
+  el.innerHTML = `
+    ${caseHeader(ci)}
+    <div class="q-label">Case ${['I','II','III'][ci]} — Question 3 of 4</div>
+    <div class="q-title">Rank the MCDA criteria selected from most to least important.</div>
+    <p class="hint">Drag and drop to reorder — most important at the top (rank 1), least important at the bottom.</p>
+    ${emptyMsgQ3}
+    <ul class="rank-list" id="ranklist-${ci}">${items}</ul>
+    <div class="footer">
+      <button class="btn" onclick="proceedQ2back(${ci})">&#8592; Back</button>
+      <button class="btn btn-primary" onclick="proceedQ3(${ci})">Next &#8594;</button>
+    </div>`;
+}
+
+function proceedQ2back(ci) { buildCaseQ2(ci); nav('case-q2-' + ci); }
+
+function dragStart(e, ci, i) { caseState[ci].dragSrc = i; setTimeout(()=>document.getElementById(`ri-${ci}-${i}`)?.classList.add('dragging'),0); }
+function dragOver(e, ci, i)  { e.preventDefault(); document.querySelectorAll(`.rank-item`).forEach(el=>el.classList.remove('drag-over')); if(i!==caseState[ci].dragSrc) document.getElementById(`ri-${ci}-${i}`)?.classList.add('drag-over'); }
+function doDrop(e, ci, i)    {
+  e.preventDefault();
+  const st = caseState[ci];
+  if (st.dragSrc===null||st.dragSrc===i) return;
+  const moved = st.selected.splice(st.dragSrc,1)[0];
+  st.selected.splice(i,0,moved);
+  buildCaseQ3(ci);
+  st.dragSrc = null;
+}
+function dragEnd(ci) { document.querySelectorAll('.rank-item').forEach(el=>el.classList.remove('dragging','drag-over')); }
+
+function proceedQ3(ci) { buildCaseQ4(ci); nav('case-q4-' + ci); }
+
+// ─────────────────────────────────────────────────────────────
+//  Q4 — Combined performance review (wajib + am, inline agree/amend)
+// ─────────────────────────────────────────────────────────────
+function buildCaseQ4(ci) {
+  const st  = caseState[ci];
+  const el  = document.getElementById('step-case-q4-' + ci);
+  const cn  = ['I','II','III'][ci];
+  const isLastCase = ci === CASES.length - 1;
+  if (!st.perfAnswers)    st.perfAnswers    = {};
+  if (!st.perfRefinements) st.perfRefinements = {};
+
+  // All active MCDA criteria — st.selected already contains:
+  //   Q1B remain/merge criteria + Q1A moved_to_mcda criteria + custom MCDA
+  //   in ranked order from Q3
+  const amList = st.selected || [];
+
+  /* REMOVED — wajibList no longer shown in Q4
+  const wajibList = [];
+  */
+
+  function perfCard(c, key, rankNum) {
+    const saved = st.perfAnswers[key] ?? 'agree';
+    const levels = (c.perfLevels||[]).map(l =>
+      `<li style="border-color:var(--usm-purple-mid)"><span class="perf-level-num" style="color:var(--usm-purple)">${l.num}—</span>${l.text}</li>`
+    ).join('');
+
+    const rankBadge = rankNum != null
+      ? `<div style="min-width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--usm-purple);flex-shrink:0">${rankNum}</div>`
+      : '';
+
+    return `
+    <div class="crit-card" style="flex-direction:column;align-items:flex-start;cursor:default;margin-bottom:10px;padding:0;overflow:hidden">
+      <div style="width:100%;padding:10px 14px;background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;align-items:flex-start;gap:10px">
+        ${rankBadge}
+        <div style="flex:1">
+          <div class="crit-card-name">${c.name}</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.65;margin-top:4px">${c.desc}</div>
+        </div>
+      </div>
+      <div style="width:100%;padding:10px 14px;background:var(--usm-purple-light);border-bottom:0.5px solid var(--usm-purple-mid)">
+        <div style="font-size:11px;font-weight:600;color:var(--usm-purple);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Current performance levels</div>
+        <ul class="perf-levels-list" style="color:var(--usm-purple)">${levels}</ul>
+      </div>
+      <div style="width:100%;padding:12px 14px;background:var(--bg)">
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">Do you agree with the current performance levels? <span style="color:#a32d2d">*</span></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+          <label style="display:flex;align-items:center;gap:8px;padding:9px 16px;border:1.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:500;transition:background .1s">
+            <input type="radio" name="q4ans-${ci}-${key}" value="agree" ${saved==='agree'?'checked':''} data-ci="${ci}" data-key="${key}" onchange="toggleQ4Field(this)" style="accent-color:#D95E00;width:15px;height:15px" /> Agree
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:9px 16px;border:1.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:500;transition:background .1s">
+            <input type="radio" name="q4ans-${ci}-${key}" value="amend" ${saved==='amend'?'checked':''} data-ci="${ci}" data-key="${key}" onchange="toggleQ4Field(this)" style="accent-color:#D95E00;width:15px;height:15px" /> Suggest amendments
+          </label>
+        </div>
+        <div id="q4val-${ci}-${key}" class="hidden" style="font-size:13px;color:#a32d2d;margin-bottom:8px">Please select an option to continue.</div>
+        <div id="q4ta-wrap-${ci}-${key}" class="${saved==='amend'?'':'hidden'}">
+          <textarea id="q4ta-${ci}-${key}" rows="4" placeholder="Propose improved performance level descriptions, thresholds, or additional levels..." style="width:100%;background:var(--bg)">${st.perfRefinements[key]||''}</textarea>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Split amList into standard MCDA and suggested (moved from mandatory + custom)
+  const standardList  = amList.filter(c => !c.movedFromMandatory && !c.isCustom);
+  const suggestedList = amList.filter(c =>  c.movedFromMandatory ||  c.isCustom);
+
+  // Build standard MCDA section (Q1B remain/merge, ranked order from Q3)
+  let mcdaSection = '';
+  if (standardList.length) {
+    const cards = standardList.map((c) => {
+      const rankNum = amList.indexOf(c) + 1;
+      return perfCard(c, `a_${c.name}`, rankNum);
+    }).join('');
+    mcdaSection = `
+      <div style="font-size:15px;font-weight:600;color:var(--usm-purple);margin-bottom:4px;margin-top:1.25rem">MCDA criteria</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Criteria you classified as MCDA, shown in your ranked order from Question 3.</p>
+      ${cards}`;
+  }
+
+  // Build suggested criteria section (Q1A moved to MCDA + Q1B custom suggested)
+  let customSection = '';
+  if (suggestedList.length) {
+    // Separate the two types for display labelling
+    // Helper for suggested card shell (rank badge + name + desc)
+    const suggestedCardHeader = (c, rankNum, accentColor, badgeBg, badgeBorder) => {
+      const rankBadge = `<div style="min-width:28px;height:28px;border-radius:50%;background:${badgeBg};border:1px solid ${badgeBorder};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:${accentColor};flex-shrink:0">${rankNum}</div>`;
+      return `<div style="width:100%;padding:10px 14px;background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;align-items:flex-start;gap:10px">
+        ${rankBadge}
+        <div style="flex:1">
+          <div class="crit-card-name">${c.name}</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.65;margin-top:4px">${c.desc}</div>
+        </div>
+      </div>`;
+    };
+
+    const suggestedPerfBox = (ci, key) => {
+      const saved = (st.perfRefinements && st.perfRefinements[key]) || '';
+      return `<div style="width:100%;padding:12px 14px;background:var(--bg)">
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px">Proposed performance levels <span style="color:#a32d2d">*</span></div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:8px">Describe the performance levels you would suggest for this criterion.</p>
+        <textarea id="q4sugg-${ci}-${key}" rows="4"
+          placeholder="e.g. Level 1 — Minimum acceptable standard. Level 2 — Good practice. Level 3 — Optimal..."
+          style="width:100%;background:var(--bg)"
+          oninput="saveSuggestedPerfText('${ci}','${key}')">${saved}</textarea>
+        <div id="q4sugg-msg-${ci}-${key}" class="hidden" style="font-size:12px;color:#a32d2d;margin-top:4px">Please propose performance levels before proceeding.</div>
+      </div>`;
+    };
+
+    // All suggested criteria — moved from Q1A and added in Q1B — unified section
+    const allSuggestedCards = suggestedList.map(c => {
+      const rankNum = amList.indexOf(c) + 1;
+      const key = `sugg_${c.name}`;
+      const saved = (st.perfRefinements && st.perfRefinements[key]) || '';
+      const rankBadge = `<div style="min-width:28px;height:28px;border-radius:50%;background:var(--usm-purple-light);border:1px solid var(--usm-purple-mid);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--usm-purple);flex-shrink:0">${rankNum}</div>`;
+      return `<div class="crit-card" style="flex-direction:column;align-items:flex-start;cursor:default;margin-bottom:8px;padding:0;overflow:hidden">
+        <div style="width:100%;padding:10px 14px;background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;align-items:flex-start;gap:10px">
+          ${rankBadge}
+          <div style="flex:1">
+            <div class="crit-card-name">${c.name}</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.65;margin-top:4px">${c.desc}</div>
+          </div>
+        </div>
+        <div style="width:100%;padding:12px 14px;background:var(--bg)">
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px">Proposed performance levels <span style="color:#a32d2d">*</span></div>
+          <p style="font-size:12px;color:var(--text2);margin-bottom:8px">Describe the performance levels you would suggest for this criterion.</p>
+          <textarea id="q4sugg-${ci}-${key}" rows="4"
+            placeholder="e.g. Level 1 — Minimum acceptable standard. Level 2 — Good practice. Level 3 — Optimal..."
+            style="width:100%;background:var(--bg)"
+            oninput="saveSuggestedPerfText('${ci}','${key}')">${saved}</textarea>
+          <div id="q4sugg-msg-${ci}-${key}" class="hidden" style="font-size:12px;color:#a32d2d;margin-top:4px">Please propose performance levels before proceeding.</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    customSection = allSuggestedCards ? `
+      <div style="font-size:15px;font-weight:600;color:var(--usm-purple);margin-bottom:4px;margin-top:1.25rem">Newly suggested and moved MCDA criteria</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Criteria you moved from mandatory or added in Q1B. Propose performance levels for each, shown with their rank from Question 3.</p>
+      ${allSuggestedCards}` : '';
+  }
+
+  const emptyMsg = !amList.length
+    ? `<div style="background:var(--amber-bg);border:0.5px solid rgba(186,117,23,.3);border-radius:var(--radius);padding:14px 16px;font-size:13px;color:var(--amber-text);line-height:1.6">No MCDA criteria were carried forward. You may proceed.</div>`
+    : '';
+
+  const nextLabel  = isLastCase ? 'Submit &#8594;' : `Proceed to case ${['I','II','III'][ci+1]} &#8594;`;
+  const nextAction = isLastCase ? `validateAndSubmitQ4(${ci})` : `validateAndNextCaseQ4(${ci})`;
+
+  el.innerHTML = `
+    ${caseHeader(ci)}
+    <div class="q-label">Case ${cn} — Question 4 of 4</div>
+    <div class="q-title">Are the suggested performance levels consistent with current practice standards?</div>
+    <p class="hint">Review the performance levels for each criterion you classified. Indicate whether you agree or wish to suggest amendments.</p>
+    ${emptyMsg}${mcdaSection}${customSection}
+    <div class="footer">
+      <button class="btn" onclick="proceedQ3back(${ci})">&#8592; Back</button>
+      <button class="btn btn-primary" onclick="${nextAction}">${nextLabel}</button>
+    </div>`;
+}
+
+function toggleQ4Field(el) {
+  const ci  = el.dataset.ci;
+  const key = el.dataset.key;
+  const val = el.value;
+  const wrap = document.getElementById(`q4ta-wrap-${ci}-${key}`);
+  const msg  = document.getElementById(`q4val-${ci}-${key}`);
+  if (wrap) wrap.classList.toggle('hidden', val !== 'amend');
+  if (msg)  msg.classList.add('hidden');
+  if (!caseState[ci].perfAnswers)     caseState[ci].perfAnswers     = {};
+  if (!caseState[ci].perfRefinements) caseState[ci].perfRefinements = {};
+  caseState[ci].perfAnswers[key] = val;
+  const ta = document.getElementById(`q4ta-${ci}-${key}`);
+  if (ta) caseState[ci].perfRefinements[key] = ta.value.trim();
+}
+
+function saveCustomPerfLevel(ci, idx) {
+  const ta = document.getElementById(`q4custom-${ci}-${idx}`);
+  if (ta && caseState[ci].customCriteria && caseState[ci].customCriteria[idx]) {
+    caseState[ci].customCriteria[idx].perfLevels = ta.value.trim();
+  }
+}
+
+function saveSuggestedPerfText(ci, key) {
+  const ta = document.getElementById(`q4sugg-${ci}-${key}`);
+  if (!ta) return;
+  const st = caseState[ci];
+  if (!st.perfRefinements) st.perfRefinements = {};
+  st.perfRefinements[key] = ta.value.trim();
+  // Clear validation message on input
+  if (ta.value.trim()) {
+    const msg = document.getElementById(`q4sugg-msg-${ci}-${key}`);
+    if (msg) msg.classList.add('hidden');
+  }
+}
+
+function saveQ4(ci) {
+  const st = caseState[ci];
+  if (!st.perfAnswers)     st.perfAnswers     = {};
+  if (!st.perfRefinements) st.perfRefinements = {};
+
+  (st.selected || []).forEach(c => {
+    if (c.movedFromMandatory || c.isCustom) {
+      // Suggested/moved criteria — stored under sugg_ key, no agree/suggest buttons
+      const key = `sugg_${c.name}`;
+      const ta = document.getElementById(`q4sugg-${ci}-${key}`);
+      if (ta) st.perfRefinements[key] = ta.value.trim();
+    } else {
+      // Standard MCDA criteria — agree/suggest with a_ key
+      const key = `a_${c.name}`;
+      const val = document.querySelector(`input[name="q4ans-${ci}-${key}"]:checked`)?.value || '';
+      st.perfAnswers[key] = val;
+      const ta = document.getElementById(`q4ta-${ci}-${key}`);
+      if (ta) st.perfRefinements[key] = ta.value.trim();
+    }
+  });
+}
+
+function validateQ4(ci) {
+  const st = caseState[ci];
+  let allValid   = true;
+  let firstError = null;
+  // Validate all active MCDA criteria
+  (st.selected || []).forEach(c => {
+    if (true) {
+      const key = `a_${c.name}`;
+      const val = document.querySelector(`input[name="q4ans-${ci}-${key}"]:checked`)?.value || 'agree';
+      const msg = document.getElementById(`q4val-${ci}-${key}`);
+      if (val === 'amend') {
+        const ta = document.getElementById(`q4ta-${ci}-${key}`);
+        if (!ta || !ta.value.trim()) {
+          if (msg) { msg.textContent = 'Please describe your suggested amendments before proceeding.'; msg.classList.remove('hidden'); }
+          if (!firstError) firstError = document.getElementById(`q4ta-wrap-${ci}-${key}`) || msg;
+          allValid = false;
+        } else {
+          if (msg) msg.classList.add('hidden');
+        }
+      } else {
+        if (msg) msg.classList.add('hidden');
+      }
+    }
+  });
+  if (!allValid && firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  return allValid;
+}
+
+function proceedQ3back(ci) { buildCaseQ3(ci); nav('case-q3-' + ci); }
+
+function validateSuggestedPerf(ci) {
+  const st = caseState[ci];
+  const suggestedList = (st.selected || []).filter(c => c.movedFromMandatory || c.isCustom);
+  let firstError = null;
+  let allValid = true;
+  suggestedList.forEach(c => {
+    const key = `sugg_${c.name}`;
+    const saved = (st.perfRefinements && st.perfRefinements[key]) || '';
+    const ta = document.getElementById(`q4sugg-${ci}-${key}`);
+    const current = ta ? ta.value.trim() : saved;
+    if (!current) {
+      allValid = false;
+      const msg = document.getElementById(`q4sugg-msg-${ci}-${key}`);
+      if (msg) msg.classList.remove('hidden');
+      if (!firstError && ta) firstError = ta;
+    }
+  });
+  if (!allValid && firstError) {
+    firstError.scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+  return allValid;
+}
+
+function validateAndNextCaseQ4(ci) {
+  if (!validateQ4(ci)) return;
+  if (!validateSuggestedPerf(ci)) return;
+  saveQ4(ci);
+  nav('case-intro-' + (ci + 1));
+}
+
+function validateAndSubmitQ4(ci) {
+  if (!validateQ4(ci)) return;
+  if (!validateSuggestedPerf(ci)) return;
+  saveQ4(ci);
+  submitForm();
+}
+
+
+function proceedToNextCase(ci) {
+  saveQ4(ci);
+  nav('case-intro-' + (ci + 1));
+}
+
+// ─────────────────────────────────────────────────────────────
+//  SUBMIT
+// ─────────────────────────────────────────────────────────────
+async function submitForm() {
+  saveQ4(0); saveQ4(1); saveQ4(2);
+
+  const dpAnswer    = document.querySelector('input[name=dpAnswer]:checked')?.value || '';
+  const dpAmendment = document.getElementById('dpAmendment')?.value.trim() || '';
+
+  // ── Build flat row ──────────────────────────────────────────
+  const row = {
+    timestamp:   new Date().toISOString(),
+    name:        document.getElementById('partName').value.trim(),
+    role:        document.getElementById('partRole').value.trim(),
+    institution: (()=>{ const s=document.getElementById('partDept').value.trim(); return s==='Others'?(document.getElementById('partDeptOther')?.value.trim()||'Others'):s; })(),
+    experience:  document.getElementById('partExp').value.trim(),
+    tender_exp:  document.querySelector('input[name="partTenderExp"]:checked')?.value || '',
+    dp_answer:   dpAnswer,
+    dp_amendment: dpAmendment
+  };
+
+  CASES.forEach((cas, ci) => {
+    const st  = caseState[ci];
+    const pre = `case${ci+1}`;
+    // classifications replaced by q1aChoices/q1bChoices
+
+    // Q1A — per-criterion action and reason
+    WAJIB_CRITERIA.forEach(c => {
+      const ch = (st.q1aChoices||{})[c.name]||{action:'remain',reason:''};
+      row[`${pre}_q1a_action_${c.name}`] = ch.action||'remain';
+      row[`${pre}_q1a_reason_${c.name}`] = ch.reason||'';
+    });
+    row[`${pre}_q1a_custom_count`] = (st.customWajib||[]).filter(r=>r.name&&r.name.trim()).length;
+
+    // Q1B — per-criterion action and reason
+    CRITERIA.forEach(c => {
+      const ch = (st.q1bChoices||{})[c.name]||{action:'remain',reason:''};
+      row[`${pre}_q1b_action_${c.name}`] = ch.action||'remain';
+      row[`${pre}_q1b_reason_${c.name}`] = ch.reason||'';
+    });
+
+    // Q2 — definition answer and refinement per MCDA criterion
+    CRITERIA.forEach(c => {
+      const defAnswer = (st.defAnswers    || {})[c.name] || '';
+      const defRef    = (st.defRefinements|| {})[c.name] || '';
+      row[`${pre}_q2_answer_${c.name}`]     = defAnswer;
+      row[`${pre}_q2_refinement_${c.name}`] = defAnswer === 'amend' ? defRef : '';
+    });
+
+    // Q3 — rank for standard MCDA criteria
+    CRITERIA.forEach(c => {
+      const rankIdx = st.selected.findIndex(s => s.name === c.name);
+      row[`${pre}_q3_${c.name}`] = rankIdx >= 0 ? rankIdx + 1 : '';
+    });
+    // Q3 — rank for suggested/moved criteria
+    (st.selected || []).filter(c => c.movedFromMandatory || c.isCustom).forEach(c => {
+      const rankIdx = st.selected.indexOf(c);
+      row[`${pre}_q3_sugg_${c.name}`] = rankIdx >= 0 ? rankIdx + 1 : '';
+    });
+    // Q4 — performance levels for suggested criteria (stored as sugg_ keys)
+    (st.selected || []).filter(c => c.movedFromMandatory || c.isCustom).forEach(c => {
+      const key = `sugg_${c.name}`;
+      row[`${pre}_q4_sugg_${c.name}`] = (st.perfRefinements || {})[key] || '';
+    });
+
+    // Q4 — performance answer and refinement per active criterion
+    CRITERIA.forEach(c => {
+      if (st.selected.some(s => s.name === c.name)) {
+        const key = `a_${c.name}`;
+        row[`${pre}_q4_answer_${c.name}`]     = (st.perfAnswers    || {})[key] || 'agree';
+        row[`${pre}_q4_refinement_${c.name}`] = (st.perfRefinements|| {})[key] || '';
+      } else {
+        row[`${pre}_q4_answer_${c.name}`]     = '';
+        row[`${pre}_q4_refinement_${c.name}`] = '';
+      }
+    });
+  });
+
+  // ── Custom MCDA criteria (Tab 5) ─────────────────────────────
+  const allCustom = [];
+
+  // ── Custom Mandatory criteria (Tab 6) ─────────────────────────
+  const allCustomWajib = [];
+  CASES.forEach((cas, ci) => {
+    const st = caseState[ci];
+
+    // Type A — Suggested new mandatory (added via Q1A builder)
+    (st.customWajib || []).forEach(r => {
+      if (!r.name || !r.name.trim()) return;
+      allCustomWajib.push({
+        case:       cas.name,
+        recordType: 'Suggested new',
+        name:       r.name || '',
+        def:        r.def  || '',
+        q1aReason:  '',
+        rank:       '',
+        perfLevels: ''
+      });
+    });
+
+    // Type B — Moved from mandatory to MCDA
+    WAJIB_CRITERIA.forEach(wc => {
+      const ch = (st.q1aChoices || {})[wc.name] || { action:'remain', reason:'' };
+      if (ch.action !== 'move_to_mcda') return;
+      const key      = `sugg_${wc.name}`;
+      const rankIdx  = (st.selected || []).findIndex(s => s.name === wc.name);
+      allCustomWajib.push({
+        case:       cas.name,
+        recordType: 'Moved to MCDA',
+        name:       wc.name,
+        def:        wc.desc || '',
+        q1aReason:  ch.reason || '',
+        rank:       rankIdx >= 0 ? rankIdx + 1 : '',
+        perfLevels: (st.perfRefinements || {})[key] || ''
+      });
+    });
+  });
+  row.customWajib = allCustomWajib;
+  CASES.forEach((cas, ci) => {
+    const st = caseState[ci];
+    (st.customCriteria || []).forEach(r => {
+      if (!r.name || !r.name.trim()) return;
+      const rankIdx  = st.selected.findIndex(s => s.name === r.name);
+      const q2Answer = (st.defAnswers     || {})[r.name] || '';
+      const q2Ref    = (st.defRefinements || {})[r.name] || '';
+      const suggKey  = `sugg_${r.name}`;
+      const perfLvl  = (st.perfRefinements || {})[suggKey] || r.perfLevels || '';
+      allCustom.push({
+        case:        cas.name,
+        cls:         'MCDA',
+        name:        r.name || '',
+        def:         r.def  || '',
+        q2Answer:    q2Answer,
+        q2Refinement: q2Answer === 'amend' ? q2Ref : '',
+        rank:        rankIdx >= 0 ? rankIdx + 1 : '',
+        perfLevels:  perfLvl
+      });
+    });
+  });
+  row.customCriteria = allCustom;
+
+  // ── Send ────────────────────────────────────────────────────
+  window._lastSubmission = row;
+  const submitBtn = document.querySelector('#step-case-q4-2 .btn-primary');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Submitting...'; }
+
+  window._participantId = null;
+  try {
+    if (BACKEND_URL) {
+      const resp = await fetch(BACKEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(row),
+        mode: 'no-cors'
+      });
+      // no-cors means we can't read the response body for participantId
+      // We store a local fallback using timestamp instead
+      window._participantId = Date.now();
+    }
+  } catch(err) { console.warn('Backend error:', err); }
+
+  markSubmitted();
+  nav('done');
+  document.getElementById('successMsg').textContent =
+    `Thank you, ${row.name}. Your responses across all ${CASES.length} procurement cases have been recorded.`;
+  renderSummary(row);
+}
+
+function renderSummary(row) {
+  const el = document.getElementById('summaryPreview');
+  el.innerHTML = `<div class="card" style="margin-top:0">
+    <div style="font-size:13px;font-weight:600;color:var(--usm-purple);margin-bottom:12px">Submission summary</div>
+    <div style="font-size:13px;padding:8px 0;border-bottom:0.5px solid var(--border)">
+      <strong>Decision problem:</strong> ${row.dp_answer === 'agree' ? 'Agreed' : 'Suggested amendments'}
+      ${row.dp_amendment ? `<div style="margin-top:4px;font-size:12px;color:var(--text2)">${row.dp_amendment}</div>` : ''}
+    </div>
+    ${CASES.map((cas,ci) => {
+      const st  = caseState[ci];
+      const mcdaCount   = (st.selected || []).length;
+      const q4AmendCount = CRITERIA.filter(c => {
+        const key = `a_${c.name}`;
+        return (st.perfAnswers || {})[key] === 'amend';
+      }).length;
+      const customCount = (st.customCriteria || []).filter(r => r.name && r.name.trim()).length;
+      return `<div style="padding:10px 0;border-bottom:0.5px solid var(--border);font-size:13px;line-height:1.7">
+        <div style="font-weight:600;margin-bottom:3px">${cas.name}</div>
+        <div style="font-size:12px;color:var(--text2)">
+          ${mcdaCount} MCDA criteri${mcdaCount===1?'on':'a'} selected
+          &nbsp;·&nbsp; ${q4AmendCount} performance level amendment${q4AmendCount===1?'':'s'}
+          &nbsp;·&nbsp; ${customCount} suggested criteri${customCount===1?'on':'a'} added
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function resetForm() {
+  ['partName','partRole','partDept','partExp'].forEach(id=>document.getElementById(id).value='');
+  const tenderYes = document.querySelector('input[name="partTenderExp"][value="yes"]'); if (tenderYes) tenderYes.checked = true;
+  caseState.forEach((st,i) => { caseState[i] = freshCaseState(); });
+  window._lastSubmission = null;
+  nav('details');
+}
+
+// ─────────────────────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────────────────────
+buildStepper();
+nav('details');
+// version badge removed — logo replaces it
+// ─────────────────────────────────────────────────────────────────
+//  EMAIL COPY — Send PDF of responses to participant
+// ─────────────────────────────────────────────────────────────────
+
+function showEmailInput() {
+  document.getElementById('sendCopyBtn').classList.add('hidden');
+  document.getElementById('emailInputSection').classList.remove('hidden');
+  document.getElementById('copyEmail').focus();
+}
+
+function hideEmailInput() {
+  document.getElementById('sendCopyBtn').classList.remove('hidden');
+  document.getElementById('emailInputSection').classList.add('hidden');
+  document.getElementById('emailValMsg').classList.add('hidden');
+}
+
+async function sendEmailCopy() {
+  const email = document.getElementById('copyEmail').value.trim();
+  const valMsg = document.getElementById('emailValMsg');
+
+  // Basic validation
+  if (!email || !email.includes('@') || !email.includes('.')) {
+    valMsg.textContent = 'Please enter a valid email address.';
+    valMsg.classList.remove('hidden');
+    return;
+  }
+  valMsg.classList.add('hidden');
+
+  // Show sending state
+  document.getElementById('emailInputSection').classList.add('hidden');
+  document.getElementById('emailSendingMsg').classList.remove('hidden');
+
+  const confirmBtn = document.getElementById('confirmEmailBtn');
+  if (confirmBtn) confirmBtn.disabled = true;
+
+  try {
+    if (!BACKEND_URL) throw new Error('No backend URL configured.');
+
+    // Use email_request — Apps Script retrieves data from Sheet by participantId
+    // Send as GET request with URL params to avoid no-cors body issue
+    const params = new URLSearchParams({
+      type:          'email_request',
+      email:         email,
+      participantId: window._participantId || '',
+      name:          (window._lastSubmission || {}).name || ''
+    });
+
+    await fetch(BACKEND_URL + '?' + params.toString(), {
+      method: 'GET',
+      mode:   'no-cors'
+    });
+
+    // Assume success after 3 seconds (no-cors blocks response reading)
+    await new Promise(r => setTimeout(r, 3000));
+    document.getElementById('emailSendingMsg').classList.add('hidden');
+    document.getElementById('emailSuccessMsg').classList.remove('hidden');
+    document.getElementById('emailCopySection').classList.add('hidden');
+
+  } catch (err) {
+    document.getElementById('emailSendingMsg').classList.add('hidden');
+    const errMsg = document.getElementById('emailErrorMsg');
+    errMsg.textContent = 'Sorry, something went wrong. Please try again or contact the research team.';
+    errMsg.classList.remove('hidden');
+    document.getElementById('sendCopyBtn').classList.remove('hidden');
+  }
+}
+
+
+</script>
+</body>
+</html>
